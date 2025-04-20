@@ -18,3 +18,5 @@ venv/
 .env/
 
 .idea/
+
+anaconda_projects/
