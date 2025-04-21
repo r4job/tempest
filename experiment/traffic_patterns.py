@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 import numpy as np
-from datetime import datetime, timedelta
-import random
 
 # --- Base class for all traffic patterns ---
 class TrafficPattern(ABC):
@@ -82,7 +81,7 @@ class FeedbackLoopPattern(TrafficPattern):
         val = self.base
         for _ in timestamps:
             val += self.feedback_rate * val + np.random.normal(0, 2)
-            values.append(max(val, 0))
+            values.append(min(max(val, 0), 1_000_000))
         return values
 
 class CascadingFailurePattern(TrafficPattern):
