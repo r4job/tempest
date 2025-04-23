@@ -1,4 +1,4 @@
-package com.tempest.metric;
+package com.tempest.metric.pojo;
 
 public class Metric {
     private final String itemId;

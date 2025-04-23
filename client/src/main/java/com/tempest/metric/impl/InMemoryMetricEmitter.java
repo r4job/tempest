@@ -1,4 +1,7 @@
-package com.tempest.metric;
+package com.tempest.metric.impl;
+
+import com.tempest.metric.MetricEmitter;
+import com.tempest.metric.pojo.Metric;
 
 import java.util.ArrayList;
 import java.util.Collections;

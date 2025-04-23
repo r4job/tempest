@@ -1,5 +1,8 @@
 package com.tempest.metric;
 
+import com.tempest.metric.impl.FileMetricEmitter;
+import com.tempest.metric.impl.InMemoryMetricEmitter;
+
 public class MetricEmitterFactory {
     public enum Destination {
         MEMORY, FILE
