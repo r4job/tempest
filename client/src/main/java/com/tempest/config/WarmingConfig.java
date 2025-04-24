@@ -14,6 +14,7 @@ public class WarmingConfig {
     public static class MetricConfig {
         private String destination;
         private String filePath;
+        private int interval;
 
         public String getDestination() {
             return destination;
@@ -29,6 +30,14 @@ public class WarmingConfig {
 
         public void setFilePath(String filePath) {
             this.filePath = filePath;
+        }
+
+        public int getInterval() {
+            return interval;
+        }
+
+        public void setInterval(int interval) {
+            this.interval = interval;
         }
     }
 }

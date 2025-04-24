@@ -1,3 +1,4 @@
 metric:
   destination: FILE
   filePath: TBD
+  interval: 10
