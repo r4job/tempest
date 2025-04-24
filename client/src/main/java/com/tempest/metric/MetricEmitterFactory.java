@@ -1,29 +1,39 @@
 package com.tempest.metric;
 
 import com.tempest.config.WarmingConfig;
-import com.tempest.metric.impl.BufferedMetricEmitter;
-import com.tempest.metric.impl.FileMetricEmitter;
-import com.tempest.metric.impl.InMemoryMetricEmitter;
+import com.tempest.metric.impl.*;
 
 public class MetricEmitterFactory {
 
+    private static final String CSV = "CSV";
+    private static final String KAFKA = "KAFKA";
+    private static final String HTTP = "HTTP";
     private static final String MEMORY = "MEMORY";
-    private static final String FILE = "FILE";
+    private static final String ERROR_MESSAGE_PREFIX = "Unsupported metric backend: ";
 
     public static MetricEmitter create(WarmingConfig.MetricConfig cfg) {
         final MetricEmitter backend;
 
-        switch (cfg.getDestination().toUpperCase()) {
+        switch (cfg.getBackend().toUpperCase()) {
+            case CSV:
+                backend = new CsvMetricEmitter(cfg.getFilePath());
+                break;
+            case KAFKA:
+                backend = new KafkaMetricEmitter(
+                        cfg.getKafka().getBootstrapServers(),
+                        cfg.getKafka().getTopic()
+                );
+                break;
+            case HTTP:
+                backend = new HttpMetricEmitter(cfg.getHttp().getEndpoint());
+                break;
             case MEMORY:
                 return new InMemoryMetricEmitter();
-            case FILE:
-                backend = new FileMetricEmitter(cfg.getFilePath());
-                break;
             default:
-                throw new IllegalArgumentException("Unsupported destination: " + cfg.getDestination());
+                throw new IllegalArgumentException(ERROR_MESSAGE_PREFIX + cfg.getBackend());
         }
 
-        return new BufferedMetricEmitter(backend, cfg.getInterval());
+        return new BufferedMetricEmitter(backend, cfg.getFlushIntervalSec());
     }
 
     /*WarmingConfig config = ConfigLoader.load("warming-config.yaml");

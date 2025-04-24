@@ -1,4 +1,14 @@
 metric:
-  destination: FILE
-  filePath: TBD
-  interval: 10
+  backend: KAFKA
+  flushIntervalSec: 10
+
+  kafka:
+    bootstrapServers: "localhost:9092"
+    topic: "cache-metrics"
+
+  # backend: HTTP
+  # http:
+    # endpoint: "http://localhost:8080/metrics"
+
+  # backend: CSV
+  # filePath: /xxx

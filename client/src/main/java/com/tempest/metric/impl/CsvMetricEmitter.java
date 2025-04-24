@@ -8,19 +8,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class FileMetricEmitter implements MetricEmitter {
+public class CsvMetricEmitter implements MetricEmitter {
+    private static final String FORMAT_STRING = "%s,%d,%d%n";
+    private static final String ERROR_MESSAGE_PREFIX = "Failed to write metric: ";
     private final String filePath;
 
-    public FileMetricEmitter(String filePath) {
+    public CsvMetricEmitter(String filePath) {
         this.filePath = filePath;
     }
 
     @Override
     public void emit(Metric metric) {
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)))) {
-            out.printf("%s,%d,%d%n", metric.getItemId(), metric.getTimestamp(), metric.getCount());
+            out.printf(FORMAT_STRING, metric.getItemId(), metric.getTimestamp(), metric.getCount());
         } catch (IOException e) {
-            System.err.println("Failed to write metric: " + e.getMessage());
+            System.err.println(ERROR_MESSAGE_PREFIX + e.getMessage());
         }
     }
 }

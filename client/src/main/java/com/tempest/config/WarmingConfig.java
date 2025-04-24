@@ -12,16 +12,19 @@ public class WarmingConfig {
     }
 
     public static class MetricConfig {
-        private String destination;
+        private String backend;
         private String filePath;
-        private int interval;
+        private int flushIntervalSec = 10; // 10 seconds by default
 
-        public String getDestination() {
-            return destination;
+        private KafkaConfig kafka;
+        private HttpConfig http;
+
+        public String getBackend() {
+            return backend;
         }
 
-        public void setDestination(String destination) {
-            this.destination = destination;
+        public void setBackend(String backend) {
+            this.backend = backend;
         }
 
         public String getFilePath() {
@@ -32,12 +35,61 @@ public class WarmingConfig {
             this.filePath = filePath;
         }
 
-        public int getInterval() {
-            return interval;
+        public int getFlushIntervalSec() {
+            return flushIntervalSec;
         }
 
-        public void setInterval(int interval) {
-            this.interval = interval;
+        public void setFlushIntervalSec(int flushIntervalSec) {
+            this.flushIntervalSec = flushIntervalSec;
+        }
+
+        public KafkaConfig getKafka() {
+            return kafka;
+        }
+
+        public void setKafka(KafkaConfig kafka) {
+            this.kafka = kafka;
+        }
+
+        public HttpConfig getHttp() {
+            return http;
+        }
+
+        public void setHttp(HttpConfig http) {
+            this.http = http;
+        }
+
+        public static class KafkaConfig {
+            private String bootstrapServers;
+            private String topic;
+
+            public String getBootstrapServers() {
+                return bootstrapServers;
+            }
+
+            public void setBootstrapServers(String bootstrapServers) {
+                this.bootstrapServers = bootstrapServers;
+            }
+
+            public String getTopic() {
+                return topic;
+            }
+
+            public void setTopic(String topic) {
+                this.topic = topic;
+            }
+        }
+
+        public static class HttpConfig {
+            private String endpoint;
+
+            public String getEndpoint() {
+                return endpoint;
+            }
+
+            public void setEndpoint(String endpoint) {
+                this.endpoint = endpoint;
+            }
         }
     }
 }
