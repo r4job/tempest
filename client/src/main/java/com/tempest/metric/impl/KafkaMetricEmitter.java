@@ -12,7 +12,7 @@ public class KafkaMetricEmitter implements MetricEmitter {
 
     private static final String STRING_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
     private static final String LEADER_ONLY = "1";
-    private static final String FORMAT_STRING = "%s,%d,%d";
+    private static final String FORMAT_STRING = "%s,%s,%d,%d";
     private final KafkaProducer<String, String> producer;
     private final String topic;
 
@@ -30,7 +30,7 @@ public class KafkaMetricEmitter implements MetricEmitter {
 
     @Override
     public void emit(MetricEvent event) {
-        String value = String.format(FORMAT_STRING, event.getItemId(), event.getTimestamp(), event.getCount());
+        String value = String.format(FORMAT_STRING, event.getObjectType(), event.getItemId(), event.getTimestamp(), event.getCount());
         producer.send(new ProducerRecord<>(topic, event.getItemId(), value));
     }
 

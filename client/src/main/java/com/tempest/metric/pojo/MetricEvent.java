@@ -1,20 +1,24 @@
 package com.tempest.metric.pojo;
 
-public class MetricEvent {
+public abstract class MetricEvent {
+    private static final int COUNT_ONE = 1;
+    private final String objectType;
     private final String itemId;
     private final long timestamp;
     private final int count;
 
-    public MetricEvent(String itemId, long timestamp, int count) {
+    public MetricEvent(String objectType, String itemId, long timestamp, int count) {
+        this.objectType = objectType;
         this.itemId = itemId;
         this.timestamp = timestamp;
         this.count = count;
     }
 
-    public MetricEvent(String itemId, long timestamp) {
+    public MetricEvent(String objectType, String itemId, long timestamp) {
+        this.objectType = objectType;
         this.itemId = itemId;
         this.timestamp = timestamp;
-        this.count = 1;
+        this.count = COUNT_ONE;
     }
 
     public int getCount() {
@@ -27,5 +31,9 @@ public class MetricEvent {
 
     public String getItemId() {
         return itemId;
+    }
+
+    public String getObjectType() {
+        return objectType;
     }
 }

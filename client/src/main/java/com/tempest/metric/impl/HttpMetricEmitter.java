@@ -12,7 +12,7 @@ public class HttpMetricEmitter implements MetricEmitter {
     private static final String POST = "POST";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    private static final String FORMAT_STRING = "{\"itemId\":\"%s\",\"timestamp\":%d,\"count\":%d}";
+    private static final String FORMAT_STRING = "{\"objectType\":\"%s\",\"itemId\":\"%s\",\"timestamp\":%d,\"count\":%d}";
     private static final String ERROR_MESSAGE_PREFIX = "Failed to send metric to HTTP endpoint: ";
     private final String endpoint;
 
@@ -30,7 +30,7 @@ public class HttpMetricEmitter implements MetricEmitter {
             conn.setDoOutput(true);
 
             String json = String.format(FORMAT_STRING,
-                    event.getItemId(), event.getTimestamp(), event.getCount());
+                    event.getObjectType(), event.getItemId(), event.getTimestamp(), event.getCount());
 
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes());
