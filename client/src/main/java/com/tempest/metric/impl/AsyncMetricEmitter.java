@@ -1,13 +1,13 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.Metric;
+import com.tempest.metric.pojo.MetricEvent;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AsyncMetricEmitter implements MetricEmitter {
-    private final BlockingQueue<Metric> queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<MetricEvent> queue = new LinkedBlockingQueue<>();
     private final Thread worker;
     private final String WORKER_NAME = "async-metric-emitter-worker";
 
@@ -15,8 +15,8 @@ public class AsyncMetricEmitter implements MetricEmitter {
         this.worker = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
-                    Metric metric = queue.take(); // blocking
-                    delegate.emit(metric);
+                    MetricEvent event = queue.take(); // blocking
+                    delegate.emit(event);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -26,8 +26,8 @@ public class AsyncMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(Metric metric) {
-        queue.offer(metric); // non-blocking
+    public void emit(MetricEvent event) {
+        queue.offer(event); // non-blocking
     }
 
     public void shutdown() {

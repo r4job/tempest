@@ -1,7 +1,7 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.Metric;
+import com.tempest.metric.pojo.MetricEvent;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -17,9 +17,9 @@ public class BufferedMetricEmitter implements MetricEmitter {
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
 
         scheduler.scheduleAtFixedRate(() -> {
-            List<Metric> metrics = buffer.drain();
-            if (!metrics.isEmpty()) {
-                for (Metric m : metrics) {
+            List<MetricEvent> events = buffer.drain();
+            if (!events.isEmpty()) {
+                for (MetricEvent m : events) {
                     backend.emit(m);
                 }
             }
@@ -27,8 +27,8 @@ public class BufferedMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(Metric metric) {
-        buffer.emit(metric);
+    public void emit(MetricEvent event) {
+        buffer.emit(event);
     }
 
     public void shutdown() {

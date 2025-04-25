@@ -1,22 +1,22 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.Metric;
+import com.tempest.metric.pojo.MetricEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class InMemoryMetricEmitter implements MetricEmitter {
-    private final List<Metric> buffer = Collections.synchronizedList(new ArrayList<>());
+    private final List<MetricEvent> buffer = Collections.synchronizedList(new ArrayList<>());
 
     @Override
-    public void emit(Metric metric) {
-        buffer.add(metric);
+    public void emit(MetricEvent event) {
+        buffer.add(event);
     }
 
-    public List<Metric> drain() {
-        List<Metric> copy;
+    public List<MetricEvent> drain() {
+        List<MetricEvent> copy;
         synchronized (buffer) {
             copy = new ArrayList<>(buffer);
             buffer.clear();

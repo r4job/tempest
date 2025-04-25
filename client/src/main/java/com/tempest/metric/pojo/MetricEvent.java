@@ -1,17 +1,17 @@
 package com.tempest.metric.pojo;
 
-public class Metric {
+public class MetricEvent {
     private final String itemId;
     private final long timestamp;
     private final int count;
 
-    public Metric(String itemId, long timestamp, int count) {
+    public MetricEvent(String itemId, long timestamp, int count) {
         this.itemId = itemId;
         this.timestamp = timestamp;
         this.count = count;
     }
 
-    public Metric(String itemId, long timestamp) {
+    public MetricEvent(String itemId, long timestamp) {
         this.itemId = itemId;
         this.timestamp = timestamp;
         this.count = 1;

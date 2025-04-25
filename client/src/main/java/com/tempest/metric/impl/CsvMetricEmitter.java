@@ -1,7 +1,7 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.Metric;
+import com.tempest.metric.pojo.MetricEvent;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -18,9 +18,9 @@ public class CsvMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(Metric metric) {
+    public void emit(MetricEvent event) {
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)))) {
-            out.printf(FORMAT_STRING, metric.getItemId(), metric.getTimestamp(), metric.getCount());
+            out.printf(FORMAT_STRING, event.getItemId(), event.getTimestamp(), event.getCount());
         } catch (IOException e) {
             System.err.println(ERROR_MESSAGE_PREFIX + e.getMessage());
         }

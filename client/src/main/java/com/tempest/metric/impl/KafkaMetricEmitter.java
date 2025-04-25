@@ -1,7 +1,7 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.Metric;
+import com.tempest.metric.pojo.MetricEvent;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -29,9 +29,9 @@ public class KafkaMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(Metric metric) {
-        String value = String.format(FORMAT_STRING, metric.getItemId(), metric.getTimestamp(), metric.getCount());
-        producer.send(new ProducerRecord<>(topic, metric.getItemId(), value));
+    public void emit(MetricEvent event) {
+        String value = String.format(FORMAT_STRING, event.getItemId(), event.getTimestamp(), event.getCount());
+        producer.send(new ProducerRecord<>(topic, event.getItemId(), value));
     }
 
     public void shutdown() {

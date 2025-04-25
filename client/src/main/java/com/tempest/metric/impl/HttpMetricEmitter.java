@@ -1,7 +1,7 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.Metric;
+import com.tempest.metric.pojo.MetricEvent;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -21,7 +21,7 @@ public class HttpMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(Metric metric) {
+    public void emit(MetricEvent event) {
         try {
             URL url = new URL(endpoint);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -30,7 +30,7 @@ public class HttpMetricEmitter implements MetricEmitter {
             conn.setDoOutput(true);
 
             String json = String.format(FORMAT_STRING,
-                    metric.getItemId(), metric.getTimestamp(), metric.getCount());
+                    event.getItemId(), event.getTimestamp(), event.getCount());
 
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes());
