@@ -14,7 +14,7 @@ public class AggregationKey {
     public AggregationKey(String objectType, String itemId, long timestampMillis, AggregationBucket bucket) {
         this.objectType = objectType;
         this.itemId = itemId;
-        this.timeBucket = computeTimeBucket(timestampMillis, bucket);;
+        this.timeBucket = computeTimeBucket(timestampMillis, bucket);
     }
 
     private String computeTimeBucket(long timestampMillis, AggregationBucket bucket) {
