@@ -2,9 +2,20 @@ package com.tempest.aggregation.pojo;
 
 public class AggregationBucket {
     public enum TimeUnit {
-        MINUTE,
-        HOUR,
-        DAY
+        MINUTE("MINUTE"),
+        HOUR("HOUR"),
+        DAY("DAY");
+
+        private final String unit;
+
+        TimeUnit(final String unit) {
+            this.unit = unit;
+        }
+
+        @Override
+        public String toString() {
+            return unit;
+        }
     }
 
     private final TimeUnit unit;
