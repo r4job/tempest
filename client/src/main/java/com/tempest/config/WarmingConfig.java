@@ -2,6 +2,7 @@ package com.tempest.config;
 
 public class WarmingConfig {
     private MetricConfig metric;
+    private AggregationConfig aggregation;
 
     public MetricConfig getMetric() {
         return metric;
@@ -9,6 +10,14 @@ public class WarmingConfig {
 
     public void setMetric(MetricConfig metric) {
         this.metric = metric;
+    }
+
+    public AggregationConfig getAggregation() {
+        return aggregation;
+    }
+
+    public void setAggregation(AggregationConfig aggregation) {
+        this.aggregation = aggregation;
     }
 
     public static class MetricConfig {
@@ -89,6 +98,39 @@ public class WarmingConfig {
 
             public void setEndpoint(String endpoint) {
                 this.endpoint = endpoint;
+            }
+        }
+    }
+
+    public static class AggregationConfig {
+        private BucketConfig bucket;
+
+        public BucketConfig getBucket() {
+            return bucket;
+        }
+
+        public void setBucket(BucketConfig bucket) {
+            this.bucket = bucket;
+        }
+
+        public static class BucketConfig {
+            private String unit;
+            private int count;
+
+            public String getUnit() {
+                return unit;
+            }
+
+            public void setUnit(String unit) {
+                this.unit = unit;
+            }
+
+            public int getCount() {
+                return count;
+            }
+
+            public void setCount(int count) {
+                this.count = count;
             }
         }
     }
