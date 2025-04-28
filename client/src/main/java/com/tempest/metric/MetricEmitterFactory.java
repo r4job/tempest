@@ -36,7 +36,7 @@ public class MetricEmitterFactory {
         return new BufferedMetricEmitter(backend, cfg.getFlushIntervalSec());
     }
 
-    /*WarmingConfig config = ConfigLoader.load("warming-config.yaml");
+    /*WarmingConfig config = ConfigLoader.load("metric-config.yaml");
     MetricEmitter emitter = MetricEmitterFactory.create(config.getMetric());
 
     emitter.emit(new Metric("item42", System.currentTimeMillis(), 1));*/

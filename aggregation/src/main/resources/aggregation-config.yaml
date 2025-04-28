@@ -1,0 +1,4 @@
+aggregation:
+  bucket:
+    unit: "MINUTE"
+    count: 5

@@ -23,15 +23,15 @@ public class AggregationKey {
 
         switch (bucket.getUnit()) {
             case MINUTE:
-                int minute = (zdt.getMinute() / bucket.getSize()) * bucket.getSize();
+                int minute = (zdt.getMinute() / bucket.getCount()) * bucket.getCount();
                 ZonedDateTime minuteAligned = zdt.withMinute(minute).withSecond(0).withNano(0);
                 return minuteAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
             case HOUR:
-                int hour = (zdt.getHour() / bucket.getSize()) * bucket.getSize();
+                int hour = (zdt.getHour() / bucket.getCount()) * bucket.getCount();
                 ZonedDateTime hourAligned = zdt.withHour(hour).withMinute(0).withSecond(0).withNano(0);
                 return hourAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH"));
             case DAY:
-                int day = (zdt.getDayOfMonth() / bucket.getSize()) * bucket.getSize();
+                int day = (zdt.getDayOfMonth() / bucket.getCount()) * bucket.getCount();
                 ZonedDateTime dayAligned = zdt.withDayOfMonth(day == 0 ? 1 : day).withHour(0).withMinute(0).withSecond(0).withNano(0);
                 return dayAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             default:

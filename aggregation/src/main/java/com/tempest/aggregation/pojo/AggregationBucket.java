@@ -38,7 +38,7 @@ public class AggregationBucket {
         return unit;
     }
 
-    public int getSize() {
+    public int getCount() {
         return count;
     }
 }

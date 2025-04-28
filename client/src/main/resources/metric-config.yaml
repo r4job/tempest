@@ -12,8 +12,3 @@ metric:
 
   # backend: CSV
   # filePath: /xxx
-
-aggregation:
-  bucket:
-    unit: "MINUTE"
-    count: 5
