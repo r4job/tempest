@@ -1,7 +1,7 @@
 package com.tempest.aggregation;
 
 import com.tempest.aggregation.pojo.AggregationKey;
-import com.tempest.metric.pojo.MetricEvent;
+import com.tempest.metric.MetricEvent;
 
 import java.util.Map;
 

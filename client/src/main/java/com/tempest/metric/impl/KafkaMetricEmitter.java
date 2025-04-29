@@ -1,7 +1,7 @@
 package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.MetricEvent;
+import com.tempest.metric.MetricEvent;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;

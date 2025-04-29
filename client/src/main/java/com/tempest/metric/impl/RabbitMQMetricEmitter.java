@@ -5,7 +5,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.MetricEvent;
+import com.tempest.metric.MetricEvent;
 
 public class RabbitMQMetricEmitter implements MetricEmitter {
 

@@ -2,7 +2,7 @@ package com.tempest.metric.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.pojo.MetricEvent;
+import com.tempest.metric.MetricEvent;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
