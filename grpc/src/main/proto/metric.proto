@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package metric;
+
+option java_package = "com.tempest.metric";
+option java_multiple_files = true;
+
+message MetricEvent {
+  string object_type = 1;
+  string item_id = 2;
+  int64 timestamp = 3;
+  string event_type = 4; // e.g., "click", "view", "purchase"
+}
+
+service MetricService {
+  rpc Report (MetricEvent) returns (ReportAck);
+}
+
+message ReportAck {
+  bool success = 1;
+  string message = 2;
+}
