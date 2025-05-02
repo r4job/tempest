@@ -25,8 +25,11 @@ public class WarmingConfig {
         private String filePath;
         private int flushIntervalSec = 10; // 10 seconds by default
 
+        private AwsConfig aws;
         private KafkaConfig kafka;
+        private GrpcConfig grpc;
         private HttpConfig http;
+        private RabbitMQConfig rabbitMQ;
 
         public String getBackend() {
             return backend;
@@ -52,6 +55,14 @@ public class WarmingConfig {
             this.flushIntervalSec = flushIntervalSec;
         }
 
+        public AwsConfig getAws() {
+            return aws;
+        }
+
+        public void setAws(AwsConfig aws) {
+            this.aws = aws;
+        }
+
         public KafkaConfig getKafka() {
             return kafka;
         }
@@ -60,12 +71,49 @@ public class WarmingConfig {
             this.kafka = kafka;
         }
 
+        public GrpcConfig getGrpc() {
+            return grpc;
+        }
+
+        public void setGrpc(GrpcConfig grpc) {
+            this.grpc = grpc;
+        }
+
         public HttpConfig getHttp() {
             return http;
         }
 
         public void setHttp(HttpConfig http) {
             this.http = http;
+        }
+
+        public RabbitMQConfig getRabbitMQ() {
+            return rabbitMQ;
+        }
+
+        public void setRabbitMQ(RabbitMQConfig rabbitMQ) {
+            this.rabbitMQ = rabbitMQ;
+        }
+
+        public static class AwsConfig {
+            private String topicArn;
+            private String region;
+
+            public String getTopicArn() {
+                return topicArn;
+            }
+
+            public void setTopicArn(String topicArn) {
+                this.topicArn = topicArn;
+            }
+
+            public String getRegion() {
+                return region;
+            }
+
+            public void setRegion(String region) {
+                this.region = region;
+            }
         }
 
         public static class KafkaConfig {
@@ -89,6 +137,54 @@ public class WarmingConfig {
             }
         }
 
+        public static class GrpcConfig {
+            private String host;
+            private int port;
+            private String secretSeed;
+            private long rotationIntervalMillis = 30 * 60 * 1000; // 30 min default
+            private long tokenTTLMillis = 10 * 60 * 1000;         // 10 min default
+
+            public String getHost() {
+                return host;
+            }
+
+            public void setHost(String host) {
+                this.host = host;
+            }
+
+            public int getPort() {
+                return port;
+            }
+
+            public void setPort(int port) {
+                this.port = port;
+            }
+
+            public String getSecretSeed() {
+                return secretSeed;
+            }
+
+            public void setSecretSeed(String secretSeed) {
+                this.secretSeed = secretSeed;
+            }
+
+            public long getRotationIntervalMillis() {
+                return rotationIntervalMillis;
+            }
+
+            public void setRotationIntervalMillis(long rotationIntervalMillis) {
+                this.rotationIntervalMillis = rotationIntervalMillis;
+            }
+
+            public long getTokenTTLMillis() {
+                return tokenTTLMillis;
+            }
+
+            public void setTokenTTLMillis(long tokenTTLMillis) {
+                this.tokenTTLMillis = tokenTTLMillis;
+            }
+        }
+
         public static class HttpConfig {
             private String endpoint;
 
@@ -98,6 +194,45 @@ public class WarmingConfig {
 
             public void setEndpoint(String endpoint) {
                 this.endpoint = endpoint;
+            }
+        }
+
+        public static class RabbitMQConfig {
+            private String host;
+            private int port;
+            private String exchangeName;
+            private String routingKey;
+
+            public String getHost() {
+                return host;
+            }
+
+            public void setHost(String host) {
+                this.host = host;
+            }
+
+            public int getPort() {
+                return port;
+            }
+
+            public void setPort(int port) {
+                this.port = port;
+            }
+
+            public String getExchangeName() {
+                return exchangeName;
+            }
+
+            public void setExchangeName(String exchangeName) {
+                this.exchangeName = exchangeName;
+            }
+
+            public String getRoutingKey() {
+                return routingKey;
+            }
+
+            public void setRoutingKey(String routingKey) {
+                this.routingKey = routingKey;
             }
         }
     }

@@ -14,9 +14,9 @@ public class AwsSnsMetricEmitter implements MetricEmitter {
     private final String topicArn;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AwsSnsMetricEmitter(String topicArn, Region region) {
+    public AwsSnsMetricEmitter(String topicArn, String region) {
         this.snsClient = SnsClient.builder()
-                .region(region)
+                .region(Region.of(region))
                 .build();
         this.topicArn = topicArn;
     }
