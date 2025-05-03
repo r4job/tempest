@@ -18,48 +18,58 @@ public class MetricEmitterFactory {
     private static final String ERROR_MESSAGE_PREFIX = "Unsupported metric backend: ";
 
     public static MetricEmitter create(WarmingConfig.MetricConfig cfg) throws Exception {
-        final MetricEmitter backend;
+        final MetricEmitter base;
 
         switch (cfg.getBackend().toUpperCase()) {
             case ASYNC:
-                backend = new AsyncMetricEmitter(new InMemoryMetricEmitter());
+                base = new AsyncMetricEmitter(new InMemoryMetricEmitter());
                 break;
             case AWS:
                 final WarmingConfig.MetricConfig.AwsConfig aws = cfg.getAws();
-                backend = new AwsSnsMetricEmitter(aws.getTopicArn(), aws.getRegion());
+                base = new AwsSnsMetricEmitter(aws.getTopicArn(), aws.getRegion());
                 break;
             case BUFFERED:
-                backend = new BufferedMetricEmitter(new InMemoryMetricEmitter(), cfg.getFlushIntervalSec());
+                base = new BufferedMetricEmitter(new InMemoryMetricEmitter(), cfg.getFlushIntervalSec());
                 break;
             case CSV:
-                backend = new CsvMetricEmitter(cfg.getFilePath());
+                base = new CsvMetricEmitter(cfg.getFilePath());
                 break;
             case KAFKA:
                 final WarmingConfig.MetricConfig.KafkaConfig kafka = cfg.getKafka();
-                backend = new KafkaMetricEmitter(
+                base = new KafkaMetricEmitter(
                         kafka.getBootstrapServers(),
                         kafka.getTopic()
                 );
                 break;
             case GRPC:
                 final WarmingConfig.MetricConfig.GrpcConfig grpc = cfg.getGrpc();
-                backend = new GrpcMetricEmitter(grpc.getHost(), grpc.getPort(), grpc.getSecretSeed(), grpc.getRotationIntervalMillis(), grpc.getTokenTTLMillis());
+                base = new GrpcMetricEmitter(grpc.getHost(), grpc.getPort(), grpc.getSecretSeed(), grpc.getRotationIntervalMillis(), grpc.getTokenTTLMillis());
                 break;
             case HTTP:
-                backend = new HttpMetricEmitter(cfg.getHttp().getEndpoint());
+                base = new HttpMetricEmitter(cfg.getHttp().getEndpoint());
                 break;
             case MEMORY:
-                backend = new InMemoryMetricEmitter();
+                base = new InMemoryMetricEmitter();
                 break;
             case RABBITMQ:
                 final WarmingConfig.MetricConfig.RabbitMQConfig rabbitMQ = cfg.getRabbitMQ();
-                backend = new RabbitMQMetricEmitter(rabbitMQ.getHost(), rabbitMQ.getPort(), rabbitMQ.getExchangeName(), rabbitMQ.getRoutingKey());
+                base = new RabbitMQMetricEmitter(rabbitMQ.getHost(), rabbitMQ.getPort(), rabbitMQ.getExchangeName(), rabbitMQ.getRoutingKey());
                 break;
             default:
                 throw new IllegalArgumentException(ERROR_MESSAGE_PREFIX + cfg.getBackend());
         }
 
-        return backend;
+        MetricEmitterBuilder builder = MetricEmitterBuilder.emitter(base);
+
+        if (cfg.isEnableRetry()) {
+            builder.withRetry(cfg.getMaxRetries(), cfg.getRetryBaseDelayMs());
+        }
+
+        if (cfg.isEnableDurability()) {
+            builder.withDurability(cfg.getDurabilityFile());
+        }
+
+        return builder.build();
     }
 
     /*WarmingConfig config = ConfigLoader.load("metric-config.yaml");

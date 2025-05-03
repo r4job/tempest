@@ -1,5 +1,7 @@
 package com.tempest.config;
 
+import java.io.File;
+
 public class WarmingConfig {
     private MetricConfig metric;
     private AggregationConfig aggregation;
@@ -30,6 +32,12 @@ public class WarmingConfig {
         private GrpcConfig grpc;
         private HttpConfig http;
         private RabbitMQConfig rabbitMQ;
+
+        private boolean enableRetry = false;
+        private boolean enableDurability = false;
+        private int maxRetries = 3;
+        private long retryBaseDelayMs = 200;
+        private File durabilityFile = new File("retry-metrics.log");
 
         public String getBackend() {
             return backend;
@@ -93,6 +101,46 @@ public class WarmingConfig {
 
         public void setRabbitMQ(RabbitMQConfig rabbitMQ) {
             this.rabbitMQ = rabbitMQ;
+        }
+
+        public boolean isEnableRetry() {
+            return enableRetry;
+        }
+
+        public void setEnableRetry(boolean enableRetry) {
+            this.enableRetry = enableRetry;
+        }
+
+        public boolean isEnableDurability() {
+            return enableDurability;
+        }
+
+        public void setEnableDurability(boolean enableDurability) {
+            this.enableDurability = enableDurability;
+        }
+
+        public int getMaxRetries() {
+            return maxRetries;
+        }
+
+        public void setMaxRetries(int maxRetries) {
+            this.maxRetries = maxRetries;
+        }
+
+        public long getRetryBaseDelayMs() {
+            return retryBaseDelayMs;
+        }
+
+        public void setRetryBaseDelayMs(long retryBaseDelayMs) {
+            this.retryBaseDelayMs = retryBaseDelayMs;
+        }
+
+        public File getDurabilityFile() {
+            return durabilityFile;
+        }
+
+        public void setDurabilityFile(File durabilityFile) {
+            this.durabilityFile = durabilityFile;
         }
 
         public static class AwsConfig {
