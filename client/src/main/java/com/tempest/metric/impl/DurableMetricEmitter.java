@@ -2,10 +2,13 @@ package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class DurableMetricEmitter implements MetricEmitter {
+    private static final Logger logger = LoggerFactory.getLogger(DurableMetricEmitter.class);
 
     private final MetricEmitter delegate;
     private final File durabilityFile;
@@ -21,7 +24,7 @@ public class DurableMetricEmitter implements MetricEmitter {
         try {
             delegate.emit(event);
         } catch (Exception e) {
-            System.err.println("[DurableEmitter] Emit failed, persisting: " + e.getMessage());
+            logger.error("[DurableEmitter] Emit failed, persisting: {}", e.getMessage());
             persist(event);
         }
     }
@@ -32,7 +35,7 @@ public class DurableMetricEmitter implements MetricEmitter {
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(event);
         } catch (IOException e) {
-            System.err.println("[DurableEmitter] Disk persist failed: " + e.getMessage());
+            logger.error("[DurableEmitter] Disk persist failed: {}", e.getMessage());
         }
     }
 

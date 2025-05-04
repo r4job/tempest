@@ -3,12 +3,16 @@ package com.tempest.metric.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sns.model.PublishResponse;
 
 public class AwsSnsMetricEmitter implements MetricEmitter {
+
+    private static final Logger logger = LoggerFactory.getLogger(AwsSnsMetricEmitter.class);
 
     private final SnsClient snsClient;
     private final String topicArn;
@@ -32,12 +36,11 @@ public class AwsSnsMetricEmitter implements MetricEmitter {
             PublishResponse response = snsClient.publish(request);
 
             if (!response.sdkHttpResponse().isSuccessful()) {
-                System.err.println("[AwsSnsMetricEmitter] Failed to publish to SNS: " +
+                logger.error("[AwsSnsMetricEmitter] Failed to publish to SNS: {}",
                         response.sdkHttpResponse().statusText().orElse("Unknown error"));
             }
         } catch (Exception e) {
-            System.err.println("[AwsSnsMetricEmitter] Failed to emit event: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("[AwsSnsMetricEmitter] Failed to emit event: {}", e.getMessage());
         }
     }
 

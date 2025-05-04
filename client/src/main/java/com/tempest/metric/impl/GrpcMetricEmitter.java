@@ -8,8 +8,12 @@ import com.tempest.metric.MetricServiceGrpc;
 import com.tempest.metric.ReportAck;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GrpcMetricEmitter implements MetricEmitter {
+    private static final Logger logger = LoggerFactory.getLogger(GrpcMetricEmitter.class);
+
     private final MetricServiceGrpc.MetricServiceBlockingStub stub;
 
     public GrpcMetricEmitter(String serverHost, int serverPort, String secretSeed, long rotationIntervalMillis, long tokenTTLMillis) {
@@ -28,10 +32,10 @@ public class GrpcMetricEmitter implements MetricEmitter {
         try {
             ReportAck ack = stub.report(event);
             if (!ack.getSuccess()) {
-                System.err.println("[GrpcMetricEmitter] Failed to emit: " + ack.getMessage());
+                logger.error("[GrpcMetricEmitter] Failed to emit: {}", ack.getMessage());
             }
         } catch (Exception e) {
-            System.err.println("[GrpcMetricEmitter] gRPC error: " + e.getMessage());
+            logger.error("[GrpcMetricEmitter] gRPC error: {}", e.getMessage());
         }
     }
 }

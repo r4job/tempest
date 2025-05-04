@@ -2,12 +2,15 @@ package com.tempest.metric.impl;
 
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HttpMetricEmitter implements MetricEmitter {
+    private static final Logger logger = LoggerFactory.getLogger(HttpMetricEmitter.class);
 
     private static final String POST = "POST";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -40,7 +43,7 @@ public class HttpMetricEmitter implements MetricEmitter {
             conn.getInputStream().close();
             conn.disconnect();
         } catch (Exception e) {
-            System.err.println(ERROR_MESSAGE_PREFIX + e.getMessage());
+            logger.error(ERROR_MESSAGE_PREFIX + "{}", e.getMessage());
         }
     }
 }

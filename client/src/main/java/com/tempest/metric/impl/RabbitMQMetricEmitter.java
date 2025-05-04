@@ -6,8 +6,11 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RabbitMQMetricEmitter implements MetricEmitter {
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMQMetricEmitter.class);
 
     private final Connection connection;
     private final Channel channel;
@@ -31,8 +34,7 @@ public class RabbitMQMetricEmitter implements MetricEmitter {
             String message = mapper.writeValueAsString(event);
             channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
         } catch (Exception e) {
-            System.err.println("[RabbitMQMetricEmitter] Failed to emit event: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("[RabbitMQMetricEmitter] Failed to emit event: {}", e.getMessage());
         }
     }
 
@@ -41,7 +43,7 @@ public class RabbitMQMetricEmitter implements MetricEmitter {
             channel.close();
             connection.close();
         } catch (Exception e) {
-            System.err.println("[RabbitMQMetricEmitter] Failed to close RabbitMQ resources: " + e.getMessage());
+            logger.error("[RabbitMQMetricEmitter] Failed to close RabbitMQ resources: {}", e.getMessage());
         }
     }
 }
