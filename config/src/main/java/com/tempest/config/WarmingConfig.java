@@ -33,10 +33,14 @@ public class WarmingConfig {
         private HttpConfig http;
         private RabbitMQConfig rabbitMQ;
 
+        private boolean enableAsync = false;
+        private int asyncQueueCapacity = 10_000;
+
         private boolean enableRetry = false;
-        private boolean enableDurability = false;
         private int maxRetries = 3;
         private long retryBaseDelayMs = 200;
+
+        private boolean enableDurability = false;
         private File durabilityFile = new File("retry-metrics.log");
 
         public String getBackend() {
@@ -101,6 +105,22 @@ public class WarmingConfig {
 
         public void setRabbitMQ(RabbitMQConfig rabbitMQ) {
             this.rabbitMQ = rabbitMQ;
+        }
+
+        public boolean isEnableAsync() {
+            return enableAsync;
+        }
+
+        public void setEnableAsync(boolean enableAsync) {
+            this.enableAsync = enableAsync;
+        }
+
+        public int getAsyncQueueCapacity() {
+            return asyncQueueCapacity;
+        }
+
+        public void setAsyncQueueCapacity(int asyncQueueCapacity) {
+            this.asyncQueueCapacity = asyncQueueCapacity;
         }
 
         public boolean isEnableRetry() {

@@ -21,9 +21,6 @@ public class MetricEmitterFactory {
         final MetricEmitter base;
 
         switch (cfg.getBackend().toUpperCase()) {
-            case ASYNC:
-                base = new AsyncMetricEmitter(new InMemoryMetricEmitter());
-                break;
             case AWS:
                 final WarmingConfig.MetricConfig.AwsConfig aws = cfg.getAws();
                 base = new AwsSnsMetricEmitter(aws.getTopicArn(), aws.getRegion());
@@ -60,6 +57,10 @@ public class MetricEmitterFactory {
         }
 
         MetricEmitterBuilder builder = MetricEmitterBuilder.emitter(base);
+
+        if (cfg.isEnableAsync()) {
+            builder.withAsync(cfg.getAsyncQueueCapacity());
+        }
 
         if (cfg.isEnableRetry()) {
             builder.withRetry(cfg.getMaxRetries(), cfg.getRetryBaseDelayMs());

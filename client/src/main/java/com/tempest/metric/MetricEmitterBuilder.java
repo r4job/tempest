@@ -8,9 +8,14 @@ import java.io.File;
 public class MetricEmitterBuilder {
 
     private MetricEmitter base;
+
+    private boolean enableAsync;
+    private int asyncQueueCapacity;
+
     private boolean enableRetry;
     private int maxRetries;
     private long retryBaseDelayMs;
+
     private boolean enableDurability;
     private File durabilityFile;
 
@@ -18,6 +23,12 @@ public class MetricEmitterBuilder {
         MetricEmitterBuilder builder = new MetricEmitterBuilder();
         builder.base = base;
         return builder;
+    }
+
+    public MetricEmitterBuilder withAsync(int asyncQueueCapacity) {
+        this.enableAsync = true;
+        this.asyncQueueCapacity = asyncQueueCapacity;
+        return this;
     }
 
     public MetricEmitterBuilder withRetry(int maxRetries, long baseDelayMs) {

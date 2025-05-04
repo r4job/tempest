@@ -7,11 +7,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AsyncMetricEmitter implements MetricEmitter {
-    private final BlockingQueue<MetricEvent> queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<MetricEvent> queue;
     private final Thread worker;
-    private final String WORKER_NAME = "async-metric-emitter-worker";
 
-    public AsyncMetricEmitter(MetricEmitter delegate) {
+    public AsyncMetricEmitter(MetricEmitter delegate, int capacity) {
+        this.queue = new LinkedBlockingQueue<>(capacity);
+
+        final String WORKER_NAME = "async-metric-emitter-worker";
         this.worker = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
