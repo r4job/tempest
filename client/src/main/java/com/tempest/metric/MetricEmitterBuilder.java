@@ -1,5 +1,6 @@
 package com.tempest.metric;
 
+import com.tempest.metric.impl.AsyncMetricEmitter;
 import com.tempest.metric.impl.DurableMetricEmitter;
 import com.tempest.metric.impl.RetryMetricEmitter;
 
@@ -51,6 +52,9 @@ public class MetricEmitterBuilder {
 
     public MetricEmitter build() {
         MetricEmitter emitter = base;
+        if (enableAsync) {
+            emitter = new AsyncMetricEmitter(emitter, asyncQueueCapacity);
+        }
         if (enableDurability) {
             emitter = new DurableMetricEmitter(emitter, durabilityFile);
         }
