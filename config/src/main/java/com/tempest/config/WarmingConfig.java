@@ -25,13 +25,15 @@ public class WarmingConfig {
     public static class MetricConfig {
         private String backend;
         private String filePath;
-        private int flushIntervalSec = 10; // 10 seconds by default
 
         private AwsConfig aws;
         private KafkaConfig kafka;
         private GrpcConfig grpc;
         private HttpConfig http;
         private RabbitMQConfig rabbitMQ;
+
+        private boolean enableBatch = false;
+        private int flushIntervalSec = 10;
 
         private boolean enableAsync = false;
         private int asyncQueueCapacity = 10_000;
@@ -57,6 +59,14 @@ public class WarmingConfig {
 
         public void setFilePath(String filePath) {
             this.filePath = filePath;
+        }
+
+        public boolean isEnableBatch() {
+            return enableBatch;
+        }
+
+        public void setEnableBatch(boolean enableBatch) {
+            this.enableBatch = enableBatch;
         }
 
         public int getFlushIntervalSec() {

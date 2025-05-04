@@ -9,7 +9,6 @@ public class MetricEmitterFactory {
     private static final Logger logger = LoggerFactory.getLogger(MetricEmitterFactory.class);
 
     private static final String AWS = "AWS";
-    private static final String BUFFERED = "BUFFERED";
     private static final String CSV = "CSV";
     private static final String GRPC = "GRPC";
     private static final String HTTP = "HTTP";
@@ -26,9 +25,6 @@ public class MetricEmitterFactory {
             case AWS:
                 final WarmingConfig.MetricConfig.AwsConfig aws = cfg.getAws();
                 base = new AwsSnsMetricEmitter(aws.getTopicArn(), aws.getRegion());
-                break;
-            case BUFFERED:
-                base = new BufferedMetricEmitter(new InMemoryMetricEmitter(), cfg.getFlushIntervalSec());
                 break;
             case CSV:
                 base = new CsvMetricEmitter(cfg.getFilePath());
@@ -69,6 +65,10 @@ public class MetricEmitterFactory {
 
         if (cfg.isEnableAsync()) {
             builder.withAsync(cfg.getAsyncQueueCapacity());
+        }
+
+        if (cfg.isEnableBatch()) {
+            builder.withBatch(cfg.getFlushIntervalSec());
         }
 
         if (cfg.isEnableRetry()) {

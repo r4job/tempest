@@ -8,12 +8,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class BufferedMetricEmitter implements MetricEmitter {
+public class ScheduledBatchMetricEmitter implements MetricEmitter {
 
     private final InMemoryMetricEmitter buffer = new InMemoryMetricEmitter();
     private final ScheduledExecutorService scheduler;
 
-    public BufferedMetricEmitter(MetricEmitter backend, long intervalSec) {
+    public ScheduledBatchMetricEmitter(MetricEmitter backend, long intervalSec) {
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
 
         scheduler.scheduleAtFixedRate(() -> {
