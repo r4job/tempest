@@ -1,5 +1,9 @@
 package com.tempest.aggregation.pojo;
 
+import com.tempest.metric.impl.AsyncMetricEmitter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -7,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class AggregationKey {
+    private static final Logger logger = LoggerFactory.getLogger(AggregationKey.class);
+
     private final String objectType;
     private final String itemId;
     private final String timeBucket;
@@ -35,6 +41,7 @@ public class AggregationKey {
                 ZonedDateTime dayAligned = zdt.withDayOfMonth(day == 0 ? 1 : day).withHour(0).withMinute(0).withSecond(0).withNano(0);
                 return dayAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             default:
+                logger.error("[AggregationKey] Unsupported time unit: {}", bucket.getUnit());
                 throw new IllegalArgumentException("Unsupported time unit: " + bucket.getUnit());
         }
     }

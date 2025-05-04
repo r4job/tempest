@@ -2,10 +2,12 @@ package com.tempest.metric;
 
 import com.tempest.config.WarmingConfig;
 import com.tempest.metric.impl.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetricEmitterFactory {
+    private static final Logger logger = LoggerFactory.getLogger(MetricEmitterFactory.class);
 
-    private static final String ASYNC = "ASYNC";
     private static final String AWS = "AWS";
     private static final String BUFFERED = "BUFFERED";
     private static final String CSV = "CSV";
@@ -17,7 +19,7 @@ public class MetricEmitterFactory {
 
     private static final String ERROR_MESSAGE_PREFIX = "Unsupported metric backend: ";
 
-    public static MetricEmitter create(WarmingConfig.MetricConfig cfg) throws Exception {
+    public static MetricEmitter create(WarmingConfig.MetricConfig cfg) {
         final MetricEmitter base;
 
         switch (cfg.getBackend().toUpperCase()) {
@@ -50,9 +52,16 @@ public class MetricEmitterFactory {
                 break;
             case RABBITMQ:
                 final WarmingConfig.MetricConfig.RabbitMQConfig rabbitMQ = cfg.getRabbitMQ();
-                base = new RabbitMQMetricEmitter(rabbitMQ.getHost(), rabbitMQ.getPort(), rabbitMQ.getExchangeName(), rabbitMQ.getRoutingKey());
+                try {
+                    base = new RabbitMQMetricEmitter(rabbitMQ.getHost(), rabbitMQ.getPort(), rabbitMQ.getExchangeName(), rabbitMQ.getRoutingKey());
+                } catch (Exception e) {
+                    RuntimeException ex = new RuntimeException(e);
+                    logger.error("[MetricEmitterFactory]: RuntimeException occurs: ", ex);
+                    throw ex;
+                }
                 break;
             default:
+                logger.error("[MetricEmitterFactory] " + ERROR_MESSAGE_PREFIX + "{}", cfg.getBackend());
                 throw new IllegalArgumentException(ERROR_MESSAGE_PREFIX + cfg.getBackend());
         }
 

@@ -21,7 +21,7 @@ public class AsyncMetricEmitter implements MetricEmitter {
         this.worker = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
-                    MetricEvent event = queue.take(); // blocking
+                    MetricEvent event = queue.take();
                     delegate.emit(event);
                 }
             } catch (InterruptedException e) {
@@ -34,7 +34,9 @@ public class AsyncMetricEmitter implements MetricEmitter {
 
     @Override
     public void emit(MetricEvent event) {
-        queue.offer(event); // non-blocking
+        if (!queue.offer(event)) {
+            logger.warn("[AsyncMetricEmitter] Metric dropped: queue full");
+        }
     }
 
     public void shutdown() {

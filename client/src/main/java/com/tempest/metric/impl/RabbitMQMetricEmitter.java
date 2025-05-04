@@ -9,6 +9,9 @@ import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
 public class RabbitMQMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(RabbitMQMetricEmitter.class);
 
@@ -18,12 +21,19 @@ public class RabbitMQMetricEmitter implements MetricEmitter {
     private final String routingKey;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public RabbitMQMetricEmitter(String host, int port, String exchangeName, String routingKey) throws Exception {
+    public RabbitMQMetricEmitter(String host, int port, String exchangeName, String routingKey) {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(host);
         factory.setPort(port);
-        this.connection = factory.newConnection();
-        this.channel = connection.createChannel();
+
+        try {
+            this.connection = factory.newConnection();
+            this.channel = connection.createChannel();
+        } catch (IOException | TimeoutException e) {
+            logger.error("[RabbitMQMetricEmitter]", e);
+            throw new RuntimeException(e);
+        }
+
         this.exchangeName = exchangeName;
         this.routingKey = routingKey;
     }
