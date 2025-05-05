@@ -1,6 +1,8 @@
 package com.tempest.metric;
 
-public abstract class MetricEvent {
+import java.io.Serializable;
+
+public abstract class MetricEvent implements Serializable {
     private static final int COUNT_ONE = 1;
     private final String objectType;
     private final String itemId;
