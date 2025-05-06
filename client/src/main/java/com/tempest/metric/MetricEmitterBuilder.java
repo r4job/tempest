@@ -30,25 +30,37 @@ public class MetricEmitterBuilder {
         return builder;
     }
 
-    public void withAsync(int asyncQueueCapacity) {
-        this.enableAsync = true;
-        this.asyncQueueCapacity = asyncQueueCapacity;
+    public MetricEmitterBuilder withAsync(boolean enablement, int asyncQueueCapacity) {
+        if (enablement) {
+            this.enableAsync = true;
+            this.asyncQueueCapacity = asyncQueueCapacity;
+        }
+        return this;
     }
 
-    public void withBatch(int flushIntervalSec) {
-        this.enableBatch = true;
-        this.flushIntervalSec = flushIntervalSec;
+    public MetricEmitterBuilder withBatch(boolean enablement, int flushIntervalSec) {
+        if (enablement) {
+            this.enableBatch = true;
+            this.flushIntervalSec = flushIntervalSec;
+        }
+        return this;
     }
 
-    public void withRetry(int maxRetries, long baseDelayMs) {
-        this.enableRetry = true;
-        this.maxRetries = maxRetries;
-        this.retryBaseDelayMs = baseDelayMs;
+    public MetricEmitterBuilder withRetry(boolean enablement, int maxRetries, long baseDelayMs) {
+        if (enablement) {
+            this.enableRetry = true;
+            this.maxRetries = maxRetries;
+            this.retryBaseDelayMs = baseDelayMs;
+        }
+        return this;
     }
 
-    public void withDurability(File file) {
-        this.enableDurability = true;
-        this.durabilityFile = file;
+    public MetricEmitterBuilder withDurability(boolean enablement, File file) {
+        if (enablement) {
+            this.enableDurability = true;
+            this.durabilityFile = file;
+        }
+        return this;
     }
 
     public MetricEmitter build() {

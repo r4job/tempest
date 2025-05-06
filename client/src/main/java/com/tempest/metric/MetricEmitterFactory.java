@@ -61,25 +61,12 @@ public class MetricEmitterFactory {
                 throw new IllegalArgumentException(ERROR_MESSAGE_PREFIX + cfg.getBackend());
         }
 
-        MetricEmitterBuilder builder = MetricEmitterBuilder.emitter(base);
-
-        if (cfg.isEnableAsync()) {
-            builder.withAsync(cfg.getAsyncQueueCapacity());
-        }
-
-        if (cfg.isEnableBatch()) {
-            builder.withBatch(cfg.getFlushIntervalSec());
-        }
-
-        if (cfg.isEnableRetry()) {
-            builder.withRetry(cfg.getMaxRetries(), cfg.getRetryBaseDelayMs());
-        }
-
-        if (cfg.isEnableDurability()) {
-            builder.withDurability(cfg.getDurabilityFile());
-        }
-
-        return builder.build();
+        return MetricEmitterBuilder.emitter(base)
+                .withDurability(cfg.isEnableDurability(), cfg.getDurabilityFile())
+                .withRetry(cfg.isEnableRetry(), cfg.getMaxRetries(), cfg.getRetryBaseDelayMs())
+                .withAsync(cfg.isEnableAsync(), cfg.getAsyncQueueCapacity())
+                .withBatch(cfg.isEnableBatch(), cfg.getFlushIntervalSec())
+                .build();
     }
 
     /*WarmingConfig config = ConfigLoader.load("metric-config.yaml");
