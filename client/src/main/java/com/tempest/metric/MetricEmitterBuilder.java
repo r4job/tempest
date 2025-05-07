@@ -6,13 +6,15 @@ import com.tempest.metric.impl.RetryMetricEmitter;
 import com.tempest.metric.impl.ScheduledBatchMetricEmitter;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 public class MetricEmitterBuilder {
 
     private MetricEmitter base;
 
     private boolean enableAsync;
-    private int asyncQueueCapacity;
 
     private boolean enableBatch;
     private int flushIntervalSec;
@@ -30,10 +32,9 @@ public class MetricEmitterBuilder {
         return builder;
     }
 
-    public MetricEmitterBuilder withAsync(boolean enablement, int asyncQueueCapacity) {
+    public MetricEmitterBuilder withAsync(boolean enablement) {
         if (enablement) {
             this.enableAsync = true;
-            this.asyncQueueCapacity = asyncQueueCapacity;
         }
         return this;
     }
@@ -72,10 +73,11 @@ public class MetricEmitterBuilder {
             emitter = new RetryMetricEmitter(emitter, maxRetries, retryBaseDelayMs);
         }
         if (enableAsync) {
-            emitter = new AsyncMetricEmitter(emitter, asyncQueueCapacity);
+            emitter = new AsyncMetricEmitter(emitter);
         }
         if (enableBatch) {
-            emitter = new ScheduledBatchMetricEmitter(emitter, flushIntervalSec);
+            // TODO: configurable
+            emitter = new ScheduledBatchMetricEmitter(emitter, 10_000, Duration.of(flushIntervalSec, ChronoUnit.SECONDS));
         }
         return emitter;
     }

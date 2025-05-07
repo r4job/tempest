@@ -36,7 +36,6 @@ public class WarmingConfig {
         private int flushIntervalSec = 10;
 
         private boolean enableAsync = false;
-        private int asyncQueueCapacity = 10_000;
 
         private boolean enableRetry = false;
         private int maxRetries = 3;
@@ -123,14 +122,6 @@ public class WarmingConfig {
 
         public void setEnableAsync(boolean enableAsync) {
             this.enableAsync = enableAsync;
-        }
-
-        public int getAsyncQueueCapacity() {
-            return asyncQueueCapacity;
-        }
-
-        public void setAsyncQueueCapacity(int asyncQueueCapacity) {
-            this.asyncQueueCapacity = asyncQueueCapacity;
         }
 
         public boolean isEnableRetry() {

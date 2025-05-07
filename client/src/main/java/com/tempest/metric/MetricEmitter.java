@@ -1,5 +1,7 @@
 package com.tempest.metric;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface MetricEmitter {
-    void emit(MetricEvent event);
+    CompletableFuture<EmitResult> emit(MetricEvent event);
 }

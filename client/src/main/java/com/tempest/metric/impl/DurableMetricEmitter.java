@@ -1,5 +1,6 @@
 package com.tempest.metric.impl;
 
+import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DurableMetricEmitter implements MetricEmitter {
@@ -25,13 +27,15 @@ public class DurableMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(MetricEvent event) {
+    public CompletableFuture<EmitResult> emit(MetricEvent event) {
         try {
             delegate.emit(event);
         } catch (Exception e) {
             logger.error("[DurableEmitter] Emit failed, persisting: {}", e.getMessage());
             persist(event);
         }
+
+        return CompletableFuture.completedFuture(EmitResult.ok());
     }
 
     private void persist(MetricEvent event) {

@@ -1,6 +1,7 @@
 package com.tempest.metric.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
@@ -9,6 +10,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sns.model.PublishResponse;
+
+import java.util.concurrent.CompletableFuture;
 
 public class AwsSnsMetricEmitter implements MetricEmitter {
 
@@ -26,7 +29,7 @@ public class AwsSnsMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(MetricEvent event) {
+    public CompletableFuture<EmitResult> emit(MetricEvent event) {
         try {
             String message = objectMapper.writeValueAsString(event);
             PublishRequest request = PublishRequest.builder()
@@ -36,12 +39,18 @@ public class AwsSnsMetricEmitter implements MetricEmitter {
             PublishResponse response = snsClient.publish(request);
 
             if (!response.sdkHttpResponse().isSuccessful()) {
-                logger.error("[AwsSnsMetricEmitter] Failed to publish to SNS: {}",
-                        response.sdkHttpResponse().statusText().orElse("Unknown error"));
+                return CompletableFuture.completedFuture(
+                        EmitResult.fail("[AwsSnsMetricEmitter] Failed to publish to SNS: {}",
+                        response.sdkHttpResponse().statusText().orElse("Unknown error")));
             }
         } catch (Exception e) {
-            logger.error("[AwsSnsMetricEmitter] Failed to emit event: {}", e.getMessage());
+            final String format = "[AwsSnsMetricEmitter] Failed to emit event: {}";
+            final String errorMessage = e.getMessage();
+            logger.error(format, errorMessage);
+            return CompletableFuture.completedFuture(EmitResult.fail(format, errorMessage));
         }
+
+        return CompletableFuture.completedFuture(EmitResult.ok());
     }
 
     public void shutdown() {

@@ -1,15 +1,19 @@
 package com.tempest.metric.impl;
 
+import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 public class KafkaMetricEmitter implements MetricEmitter {
-
+    private static final Logger logger = LoggerFactory.getLogger(KafkaMetricEmitter.class);
     private static final String STRING_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
     private static final String LEADER_ONLY = "1";
     private static final String FORMAT_STRING = "%s,%s,%d,%d";
@@ -29,9 +33,31 @@ public class KafkaMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(MetricEvent event) {
-        String value = String.format(FORMAT_STRING, event.getObjectType(), event.getItemId(), event.getTimestamp(), event.getCount());
-        producer.send(new ProducerRecord<>(topic, event.getItemId(), value));
+    public CompletableFuture<EmitResult> emit(MetricEvent event) {
+        CompletableFuture<EmitResult> resultFuture = new CompletableFuture<>();
+
+        String value = String.format(
+                FORMAT_STRING,
+                event.getObjectType(),
+                event.getItemId(),
+                event.getTimestamp(),
+                event.getCount()
+        );
+
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, event.getItemId(), value);
+
+        producer.send(record, (metadata, exception) -> {
+            if (exception != null) {
+                String errorMessage = String.format("Kafka emit failed: topic=%s, key=%s, due to exception: %s",
+                        topic, event.getItemId(), exception.getMessage());
+                logger.error("[KafkaMetricEmitter] {}", errorMessage);
+                resultFuture.complete(EmitResult.fail(errorMessage));
+            } else {
+                resultFuture.complete(EmitResult.ok());
+            }
+        });
+
+        return resultFuture;
     }
 
     public void shutdown() {

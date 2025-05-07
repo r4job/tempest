@@ -2,14 +2,13 @@ package com.tempest.metric.impl;
 
 import com.tempest.grpc.auth.AuthCallCredentials;
 import com.tempest.grpc.auth.TimeBasedKeyProvider;
-import com.tempest.metric.MetricEmitter;
-import com.tempest.metric.MetricEvent;
-import com.tempest.metric.MetricServiceGrpc;
-import com.tempest.metric.ReportAck;
+import com.tempest.metric.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 public class GrpcMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(GrpcMetricEmitter.class);
@@ -28,14 +27,20 @@ public class GrpcMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(MetricEvent event) {
+    public CompletableFuture<EmitResult> emit(MetricEvent event) {
         try {
             ReportAck ack = stub.report(event);
             if (!ack.getSuccess()) {
-                logger.error("[GrpcMetricEmitter] Failed to emit: {}", ack.getMessage());
+                final String format = "[GrpcMetricEmitter] Failed to emit: {}";
+                logger.error(format, ack.getMessage());
+                return CompletableFuture.completedFuture(EmitResult.fail(format, ack.getMessage()));
             }
         } catch (Exception e) {
-            logger.error("[GrpcMetricEmitter] gRPC error: {}", e.getMessage());
+            final String format = "[GrpcMetricEmitter] gRPC error: {}";
+            logger.error(format, e.getMessage());
+            return CompletableFuture.completedFuture(EmitResult.fail(format, e.getMessage()));
         }
+
+        return CompletableFuture.completedFuture(EmitResult.ok());
     }
 }

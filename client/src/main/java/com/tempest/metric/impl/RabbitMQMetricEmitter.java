@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
 public class RabbitMQMetricEmitter implements MetricEmitter {
@@ -39,13 +41,19 @@ public class RabbitMQMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(MetricEvent event) {
+    public CompletableFuture<EmitResult> emit(MetricEvent event) {
         try {
             String message = mapper.writeValueAsString(event);
             channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
+            channel.waitForConfirmsOrDie();  // throws IOException or TimeoutException on failure
+
         } catch (Exception e) {
-            logger.error("[RabbitMQMetricEmitter] Failed to emit event: {}", e.getMessage());
+            final String format = "[RabbitMQMetricEmitter] RabbitMQ emit failed due to exception: {}";
+            logger.error(format, e.getMessage());
+            return CompletableFuture.completedFuture(EmitResult.fail(format, e.getMessage()));
         }
+
+        return CompletableFuture.completedFuture(EmitResult.ok());
     }
 
     public void close() {

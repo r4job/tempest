@@ -1,5 +1,6 @@
 package com.tempest.metric.impl;
 
+import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
 public class CsvMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(CsvMetricEmitter.class);
@@ -22,11 +24,13 @@ public class CsvMetricEmitter implements MetricEmitter {
     }
 
     @Override
-    public void emit(MetricEvent event) {
+    public CompletableFuture<EmitResult> emit(MetricEvent event) {
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)))) {
             out.printf(FORMAT_STRING, event.getObjectType(), event.getItemId(), event.getTimestamp(), event.getCount());
         } catch (IOException e) {
             logger.error(ERROR_MESSAGE_PREFIX + "{}", e.getMessage());
         }
+
+        return CompletableFuture.completedFuture(EmitResult.ok());
     }
 }

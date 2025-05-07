@@ -64,7 +64,7 @@ public class MetricEmitterFactory {
         return MetricEmitterBuilder.emitter(base)
                 .withDurability(cfg.isEnableDurability(), cfg.getDurabilityFile())
                 .withRetry(cfg.isEnableRetry(), cfg.getMaxRetries(), cfg.getRetryBaseDelayMs())
-                .withAsync(cfg.isEnableAsync(), cfg.getAsyncQueueCapacity())
+                .withAsync(cfg.isEnableAsync())
                 .withBatch(cfg.isEnableBatch(), cfg.getFlushIntervalSec())
                 .build();
     }
