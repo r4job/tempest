@@ -31,21 +31,25 @@ public class DurableMetricEmitter implements MetricEmitter {
         try {
             delegate.emit(event);
         } catch (Exception e) {
-            logger.error("[DurableEmitter] Emit failed, persisting: {}", e.getMessage());
-            persist(event);
+            logger.error("[DurableMetricEmitter] Emit failed, persisting: {}", e.getMessage());
+            if (!persist(event)) {
+                return CompletableFuture.completedFuture(EmitResult.fail("[DurableMetricEmitter] Disk persist failed"));
+            }
         }
 
         return CompletableFuture.completedFuture(EmitResult.ok());
     }
 
-    private void persist(MetricEvent event) {
+    private boolean persist(MetricEvent event) {
         try {
             FileOutputStream fos = new FileOutputStream(durabilityFile, true);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(event);
         } catch (IOException e) {
-            logger.error("[DurableEmitter] Disk persist failed: {}", e.getMessage());
+            logger.error("[DurableMetricEmitter] Disk persist failed: {}", e.getMessage());
+            return false;
         }
+        return true;
     }
 
     private void loadBufferFromDisk() {
