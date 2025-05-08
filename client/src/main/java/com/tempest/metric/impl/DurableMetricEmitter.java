@@ -3,95 +3,92 @@ package com.tempest.metric.impl;
 import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
+import com.tempest.metric.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class DurableMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(DurableMetricEmitter.class);
 
     private final MetricEmitter delegate;
-    private final File durabilityFile;
-    private final BlockingQueue<MetricEvent> recoveryQueue;
+    private final MetricWriter writer;
+    private final MetricReader reader;
+    private final ExecutorService retryExecutor;
+    private final ScheduledExecutorService recoveryScheduler;
 
-    public DurableMetricEmitter(MetricEmitter delegate, File file) {
+    // TODO: configurable
+    private final int recoveryBatchSize = 10;
+    private final int recoveryThreadCount = 2;
+    private final long recoveryIntervalMs = 2000;
+
+    public DurableMetricEmitter(MetricEmitter delegate, File dir, int maxSegmentSize, int batchSize, long flushIntervalMs) {
         this.delegate = delegate;
-        this.durabilityFile = file;
-        this.recoveryQueue = new LinkedBlockingQueue<>(10_000); // TODO: configurable
-        loadBufferFromDisk();
-        startRecoveryWorker();
+        try {
+            this.writer = new MetricWriter(dir, maxSegmentSize, batchSize, flushIntervalMs);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize SegmentedDurableWriter", e);
+        }
+        this.reader = new MetricReader(dir);
+        this.retryExecutor = Executors.newFixedThreadPool(recoveryThreadCount);
+        this.recoveryScheduler = Executors.newSingleThreadScheduledExecutor();
+
+        startRecoveryScheduler();
     }
 
     @Override
     public CompletableFuture<EmitResult> emit(MetricEvent event) {
+        CompletableFuture<EmitResult> future = new CompletableFuture<>();
+
+        delegate.emit(event).whenComplete((res, ex) -> {
+            if (ex != null || !res.isSuccess()) {
+                logger.warn("[DurableMetricEmitter] Emit failed, persisting: {}", ex != null ? ex.getMessage() : res.getMessage());
+                try {
+                    writer.append(event);
+                    future.complete(EmitResult.fail("Persisted to disk due to emit failure"));
+                } catch (Exception e2) {
+                    logger.error("[DurableMetricEmitter] Disk persist failed: {}", e2.getMessage());
+                    future.complete(EmitResult.fail("Emit & persist both failed: " + e2.getMessage()));
+                }
+            } else {
+                future.complete(res);
+            }
+        });
+
+        return future;
+    }
+
+    private void startRecoveryScheduler() {
+        recoveryScheduler.scheduleAtFixedRate(() -> {
+            List<MetricEvent> batch = reader.readNextBatch(recoveryBatchSize);
+            if (batch.isEmpty()) {
+                return;
+            }
+
+            for (MetricEvent event : batch) {
+                retryExecutor.submit(() -> {
+                    delegate.emit(event).whenComplete((res, ex) -> {
+                        if (ex != null || !res.isSuccess()) {
+                            logger.warn("[DurableRecovery] Retry failed for event {}: {}", event.getItemId(), ex != null ? ex.getMessage() : res.getMessage());
+                        } else {
+                            logger.info("[DurableRecovery] Successfully re-emitted: {}", event.getItemId());
+                        }
+                    });
+                });
+            }
+        }, recoveryIntervalMs, recoveryIntervalMs, TimeUnit.MILLISECONDS);
+    }
+
+    public void shutdown() {
+        retryExecutor.shutdown();
+        recoveryScheduler.shutdown();
         try {
-            delegate.emit(event);
+            writer.close();
         } catch (Exception e) {
-            logger.error("[DurableMetricEmitter] Emit failed, persisting: {}", e.getMessage());
-            if (!persist(event)) {
-                return CompletableFuture.completedFuture(EmitResult.fail("[DurableMetricEmitter] Disk persist failed"));
-            }
+            logger.error("[DurableMetricEmitter] Failed to close durable writer: {}", e.getMessage());
         }
-
-        return CompletableFuture.completedFuture(EmitResult.ok());
-    }
-
-    private boolean persist(MetricEvent event) {
-        try {
-            FileOutputStream fos = new FileOutputStream(durabilityFile, true);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(event);
-        } catch (IOException e) {
-            logger.error("[DurableMetricEmitter] Disk persist failed: {}", e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    private void loadBufferFromDisk() {
-        if (!durabilityFile.exists()) {
-            return;
-        }
-
-        try {
-            FileInputStream fis = new FileInputStream(durabilityFile);
-            while (fis.available() > 0) {
-                try (ObjectInputStream ois = new ObjectInputStream(fis)) {
-                    Object obj = ois.readObject();
-                    if (obj instanceof MetricEvent) {
-                        recoveryQueue.offer((MetricEvent) obj);
-                    }
-                } catch (Exception e) {
-                    logger.error("[DurableMetricEmitter] Failed to load event from disk: {}", e.getMessage());
-                }
-            }
-        } catch (IOException e) {
-            logger.error("[DurableMetricEmitter] Error reading durability file: {}", e.getMessage());
-        }
-    }
-
-    private void startRecoveryWorker() {
-        Thread worker = new Thread(() -> {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    MetricEvent event = recoveryQueue.take();
-                    try {
-                        delegate.emit(event);
-                        // TODO: track success and delete durability file later
-                    } catch (Exception e) {
-                        logger.error("[DurableMetricEmitter] Retry failed: {}", e.getMessage());
-                        recoveryQueue.offer(event);
-                        Thread.sleep(500); // avoid tight loop
-                    }
-                }
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
-        }, "durable-metric-recovery-worker");
-        worker.start();
     }
 }

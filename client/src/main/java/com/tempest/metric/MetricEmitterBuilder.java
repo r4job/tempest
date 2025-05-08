@@ -8,7 +8,6 @@ import com.tempest.metric.impl.ScheduledBatchMetricEmitter;
 import java.io.File;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 
 public class MetricEmitterBuilder {
 
@@ -67,7 +66,8 @@ public class MetricEmitterBuilder {
     public MetricEmitter build() {
         MetricEmitter emitter = base;
         if (enableDurability) {
-            emitter = new DurableMetricEmitter(emitter, durabilityFile);
+            // TODO: configurable
+            emitter = new DurableMetricEmitter(emitter, new File("durable_metrics"), 10 * 1024 * 1024, 50, 1000);
         }
         if (enableRetry) {
             emitter = new RetryMetricEmitter(emitter, maxRetries, retryBaseDelayMs);
