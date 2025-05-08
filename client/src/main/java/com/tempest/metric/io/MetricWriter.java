@@ -18,7 +18,6 @@ public class MetricWriter implements Closeable {
     private final File dir;
     private final int maxSegmentSizeBytes;
     private final int batchSize;
-    private final long flushIntervalMs;
 
     private final List<MetricEvent> buffer;
     private final ScheduledExecutorService flusher;
@@ -32,7 +31,6 @@ public class MetricWriter implements Closeable {
         this.dir = dir;
         this.maxSegmentSizeBytes = maxSegmentSizeBytes;
         this.batchSize = batchSize;
-        this.flushIntervalMs = flushIntervalMs;
         this.buffer = new ArrayList<>(batchSize);
 
         if (!dir.exists()) {
@@ -85,7 +83,7 @@ public class MetricWriter implements Closeable {
                 try {
                     flushBuffer();
                 } catch (IOException e) {
-                    logger.error("[SegmentedDurableWriter] Flush failed: {}", e.getMessage());
+                    logger.error("[MetricWriter] Flush failed: {}", e.getMessage());
                 }
             }
         }

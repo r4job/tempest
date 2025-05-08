@@ -30,7 +30,7 @@ public class DurableMetricEmitter implements MetricEmitter {
         try {
             this.writer = new MetricWriter(dir, maxSegmentSize, batchSize, flushIntervalMs);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize SegmentedDurableWriter", e);
+            throw new RuntimeException("Failed to initialize MetricWriter", e);
         }
         this.reader = new MetricReader(dir);
         this.retryExecutor = Executors.newFixedThreadPool(recoveryThreadCount);
@@ -72,9 +72,9 @@ public class DurableMetricEmitter implements MetricEmitter {
                 retryExecutor.submit(() -> {
                     delegate.emit(event).whenComplete((res, ex) -> {
                         if (ex != null || !res.isSuccess()) {
-                            logger.warn("[DurableRecovery] Retry failed for event {}: {}", event.getItemId(), ex != null ? ex.getMessage() : res.getMessage());
+                            logger.warn("[MetricRecovery] Retry failed for event {}: {}", event.getItemId(), ex != null ? ex.getMessage() : res.getMessage());
                         } else {
-                            logger.info("[DurableRecovery] Successfully re-emitted: {}", event.getItemId());
+                            logger.info("[MetricRecovery] Successfully re-emitted: {}", event.getItemId());
                         }
                     });
                 });

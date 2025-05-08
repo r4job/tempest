@@ -45,7 +45,7 @@ public class MetricReader {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            logger.error("[SegmentedDurableReader] Failed to read segment {}: {}", currentSegmentIndex, e.getMessage());
+            logger.error("[MetricReader] Failed to read segment {}: {}", currentSegmentIndex, e.getMessage());
         }
 
         saveCursor();
@@ -65,7 +65,7 @@ public class MetricReader {
             this.currentSegmentIndex = Integer.parseInt(parts[0]);
             this.currentOffset = Long.parseLong(parts[1]);
         } catch (IOException | NumberFormatException e) {
-            logger.warn("[SegmentedDurableReader] Failed to load cursor, defaulting to 0: {}", e.getMessage());
+            logger.warn("[MetricReader] Failed to load cursor, defaulting to 0: {}", e.getMessage());
             this.currentSegmentIndex = 0;
             this.currentOffset = 0;
         }
@@ -75,7 +75,7 @@ public class MetricReader {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(cursorFile))) {
             writer.write(currentSegmentIndex + "," + currentOffset);
         } catch (IOException e) {
-            logger.warn("[SegmentedDurableReader] Failed to save cursor: {}", e.getMessage());
+            logger.warn("[MetricReader] Failed to save cursor: {}", e.getMessage());
         }
     }
 
@@ -87,12 +87,12 @@ public class MetricReader {
 
         if (currentOffset >= currentFile.length()) {
             if (currentFile.delete()) {
-                logger.info("[SegmentedDurableReader] Deleted fully read segment: {}", currentFile.getName());
+                logger.info("[MetricReader] Deleted fully read segment: {}", currentFile.getName());
                 currentSegmentIndex++;
                 currentOffset = 0;
                 saveCursor();
             } else {
-                logger.warn("[SegmentedDurableReader] Failed to delete segment: {}", currentFile.getName());
+                logger.warn("[MetricReader] Failed to delete segment: {}", currentFile.getName());
             }
         }
     }
