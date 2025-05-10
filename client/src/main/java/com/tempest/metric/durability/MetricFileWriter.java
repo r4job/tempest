@@ -1,4 +1,4 @@
-package com.tempest.metric.io;
+package com.tempest.metric.durability;
 
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 
-public class MetricWriter implements Closeable {
-    private static final Logger logger = LoggerFactory.getLogger(MetricWriter.class);
+public class MetricFileWriter implements Closeable {
+    private static final Logger logger = LoggerFactory.getLogger(MetricFileWriter.class);
     private static final DecimalFormat FORMAT = new DecimalFormat("0000");
 
     private final File dir;
@@ -27,7 +27,7 @@ public class MetricWriter implements Closeable {
     private File currentFile;
     private ObjectOutputStream out;
 
-    public MetricWriter(File dir, int maxSegmentSizeBytes, int batchSize, long flushIntervalMs) throws IOException {
+    public MetricFileWriter(File dir, int maxSegmentSizeBytes, int batchSize, long flushIntervalMs) throws IOException {
         this.dir = dir;
         this.maxSegmentSizeBytes = maxSegmentSizeBytes;
         this.batchSize = batchSize;

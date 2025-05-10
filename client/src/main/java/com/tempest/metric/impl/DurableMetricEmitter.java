@@ -3,7 +3,7 @@ package com.tempest.metric.impl;
 import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
-import com.tempest.metric.io.*;
+import com.tempest.metric.durability.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +15,8 @@ public class DurableMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(DurableMetricEmitter.class);
 
     private final MetricEmitter delegate;
-    private final MetricWriter writer;
-    private final MetricReader reader;
+    private final MetricFileWriter writer;
+    private final MetricFileReader reader;
     private final ExecutorService retryExecutor;
     private final ScheduledExecutorService recoveryScheduler;
 
@@ -28,11 +28,11 @@ public class DurableMetricEmitter implements MetricEmitter {
     public DurableMetricEmitter(MetricEmitter delegate, File dir, int maxSegmentSize, int batchSize, long flushIntervalMs) {
         this.delegate = delegate;
         try {
-            this.writer = new MetricWriter(dir, maxSegmentSize, batchSize, flushIntervalMs);
+            this.writer = new MetricFileWriter(dir, maxSegmentSize, batchSize, flushIntervalMs);
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize MetricWriter", e);
         }
-        this.reader = new MetricReader(dir);
+        this.reader = new MetricFileReader(dir);
         this.retryExecutor = Executors.newFixedThreadPool(recoveryThreadCount);
         this.recoveryScheduler = Executors.newSingleThreadScheduledExecutor();
 

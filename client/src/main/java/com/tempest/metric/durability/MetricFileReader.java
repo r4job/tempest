@@ -1,4 +1,4 @@
-package com.tempest.metric.io;
+package com.tempest.metric.durability;
 
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
@@ -9,8 +9,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 
-public class MetricReader {
-    private static final Logger logger = LoggerFactory.getLogger(MetricReader.class);
+public class MetricFileReader {
+    private static final Logger logger = LoggerFactory.getLogger(MetricFileReader.class);
     private static final DecimalFormat FORMAT = new DecimalFormat("0000");
 
     private final File dir;
@@ -18,7 +18,7 @@ public class MetricReader {
     private int currentSegmentIndex;
     private long currentOffset;
 
-    public MetricReader(File dir) {
+    public MetricFileReader(File dir) {
         this.dir = dir;
         this.cursorFile = new File(dir, "read.cursor");
         loadCursor();
