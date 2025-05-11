@@ -1,15 +1,20 @@
 package com.tempest.metric;
 
+import com.tempest.metric.durability.FileDurabilityStore;
 import com.tempest.metric.impl.AsyncMetricEmitter;
 import com.tempest.metric.impl.DurableMetricEmitter;
 import com.tempest.metric.impl.RetryMetricEmitter;
 import com.tempest.metric.impl.ScheduledBatchMetricEmitter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 public class MetricEmitterBuilder {
+    private static final Logger logger = LoggerFactory.getLogger(MetricEmitterBuilder.class);
 
     private MetricEmitter base;
 
@@ -66,8 +71,14 @@ public class MetricEmitterBuilder {
     public MetricEmitter build() {
         MetricEmitter emitter = base;
         if (enableDurability) {
-            // TODO: configurable
-            emitter = new DurableMetricEmitter(emitter, new File("durable_metrics"), 10 * 1024 * 1024, 50, 1000);
+            try {
+                // TODO: configurable
+                emitter = new DurableMetricEmitter(emitter,
+                        new FileDurabilityStore(durabilityFile, 10 * 1024 * 1024, 50, 1000));
+            } catch (IOException e) {
+                logger.error("[MetricEmitterBuilder] IOException occurred: {}", e.getMessage());
+                throw new RuntimeException(e);
+            }
         }
         if (enableRetry) {
             emitter = new RetryMetricEmitter(emitter, maxRetries, retryBaseDelayMs);

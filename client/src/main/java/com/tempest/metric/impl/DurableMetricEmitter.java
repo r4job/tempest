@@ -7,7 +7,6 @@ import com.tempest.metric.durability.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -15,8 +14,7 @@ public class DurableMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(DurableMetricEmitter.class);
 
     private final MetricEmitter delegate;
-    private final MetricFileWriter writer;
-    private final MetricFileReader reader;
+    private final MetricDurabilityStore store;
     private final ExecutorService retryExecutor;
     private final ScheduledExecutorService recoveryScheduler;
 
@@ -25,14 +23,9 @@ public class DurableMetricEmitter implements MetricEmitter {
     private final int recoveryThreadCount = 2;
     private final long recoveryIntervalMs = 2000;
 
-    public DurableMetricEmitter(MetricEmitter delegate, File dir, int maxSegmentSize, int batchSize, long flushIntervalMs) {
+    public DurableMetricEmitter(MetricEmitter delegate, MetricDurabilityStore store) {
         this.delegate = delegate;
-        try {
-            this.writer = new MetricFileWriter(dir, maxSegmentSize, batchSize, flushIntervalMs);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize MetricWriter", e);
-        }
-        this.reader = new MetricFileReader(dir);
+        this.store = store;
         this.retryExecutor = Executors.newFixedThreadPool(recoveryThreadCount);
         this.recoveryScheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -47,7 +40,7 @@ public class DurableMetricEmitter implements MetricEmitter {
             if (ex != null || !res.isSuccess()) {
                 logger.warn("[DurableMetricEmitter] Emit failed, persisting: {}", ex != null ? ex.getMessage() : res.getMessage());
                 try {
-                    writer.append(event);
+                    store.append(event);
                     future.complete(EmitResult.fail("Persisted to disk due to emit failure"));
                 } catch (Exception e2) {
                     logger.error("[DurableMetricEmitter] Disk persist failed: {}", e2.getMessage());
@@ -63,7 +56,7 @@ public class DurableMetricEmitter implements MetricEmitter {
 
     private void startRecoveryScheduler() {
         recoveryScheduler.scheduleAtFixedRate(() -> {
-            List<MetricEvent> batch = reader.readNextBatch(recoveryBatchSize);
+            List<MetricEvent> batch = store.readNextBatch(recoveryBatchSize);
             if (batch.isEmpty()) {
                 return;
             }
@@ -86,7 +79,7 @@ public class DurableMetricEmitter implements MetricEmitter {
         retryExecutor.shutdown();
         recoveryScheduler.shutdown();
         try {
-            writer.close();
+            store.close();
         } catch (Exception e) {
             logger.error("[DurableMetricEmitter] Failed to close durable writer: {}", e.getMessage());
         }
