@@ -46,7 +46,7 @@ class BatchMetricEmitterTest {
         MetricEmitter mockDelegate = mock(MetricEmitter.class);
         when(mockDelegate.emit(any())).thenReturn(CompletableFuture.completedFuture(EmitResult.ok()));
 
-        TestBatchEmitter emitter = new TestBatchEmitter(mockDelegate, 1);
+        FixedSizeBatchMetricEmitter emitter = new FixedSizeBatchMetricEmitter(mockDelegate, 1, 2);
 
         MetricEvent e1 = new TestMetricEvent("type", "id1", System.currentTimeMillis(), 1);
         MetricEvent e2 = new TestMetricEvent("type", "id2", System.currentTimeMillis(), 1);
@@ -55,6 +55,6 @@ class BatchMetricEmitterTest {
         CompletableFuture<EmitResult> result = emitter.emit(e2);
 
         assertFalse(result.get().isSuccess());
-        verify(mockDelegate, times(1)).emit(any());
+        verify(mockDelegate, never()).emit(any());
     }
 }
