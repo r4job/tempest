@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 public class GrpcMetricEmitter implements MetricEmitter {
     private static final Logger logger = LoggerFactory.getLogger(GrpcMetricEmitter.class);
 
-    private final MetricServiceGrpc.MetricServiceBlockingStub stub;
+    MetricServiceGrpc.MetricServiceBlockingStub stub;
 
     public GrpcMetricEmitter(String serverHost, int serverPort, String secretSeed, long rotationIntervalMillis, long tokenTTLMillis) {
         ManagedChannel channel = ManagedChannelBuilder
