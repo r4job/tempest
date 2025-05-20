@@ -25,25 +25,31 @@ public class RetryMetricEmitter implements MetricEmitter {
     public CompletableFuture<EmitResult> emit(MetricEvent event) {
         for (int i = 0; i <= maxRetries; i++) {
             try {
-                delegate.emit(event);
+                EmitResult result = delegate.emit(event).join();
+                if (result.isSuccess()) {
+                    return CompletableFuture.completedFuture(result);
+                } else if (i == maxRetries) {
+                    final String format = "[RetryMetricEmitter] Failed after retries, last failure: {}";
+                    logger.error(format, result.getMessage());
+                    return CompletableFuture.completedFuture(result);
+                }
             } catch (Exception e) {
                 if (i == maxRetries) {
                     final String format = "[RetryMetricEmitter] Failed after retries, due to exception: {}";
                     logger.error(format, e.getMessage());
                     return CompletableFuture.completedFuture(EmitResult.fail(format, e.getMessage()));
-                } else {
-                    try {
-                        // TODO: more retry strategies
-                        Thread.sleep((long) (baseDelayMs * Math.pow(2, i)));
-                    } catch (InterruptedException ex) {
-                        final String format = "[RetryMetricEmitter] retries interrupted: {}";
-                        logger.error(format, ex.getMessage());
-                        return CompletableFuture.completedFuture(EmitResult.fail(format, ex.getMessage()));
-                    }
                 }
+            }
+
+            try {
+                Thread.sleep((long) (baseDelayMs * Math.pow(2, i)));
+            } catch (InterruptedException ex) {
+                final String format = "[RetryMetricEmitter] retries interrupted: {}";
+                logger.error(format, ex.getMessage());
+                return CompletableFuture.completedFuture(EmitResult.fail(format, ex.getMessage()));
             }
         }
 
-        return CompletableFuture.completedFuture(EmitResult.ok());
+        return CompletableFuture.completedFuture(EmitResult.fail("[RetryMetricEmitter] Unexpected exit")); // defensive
     }
 }
