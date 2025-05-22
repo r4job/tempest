@@ -45,7 +45,7 @@ class AsyncMetricEmitterTest {
     }
 
     @Test
-    void testEmitWithException() throws ExecutionException, InterruptedException {
+    void testEmitWithException() {
         MetricEmitter mockDelegate = mock(MetricEmitter.class);
         MetricEvent event = new TestMetricEvent("type", "id", System.currentTimeMillis(), 1);
         CompletableFuture<EmitResult> failedFuture = new CompletableFuture<>();
