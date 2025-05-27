@@ -23,4 +23,7 @@ anaconda_projects/
 
 **/target/
 
+.log
+*.log
+
 grpc.iml
