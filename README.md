@@ -118,7 +118,7 @@ com.tempest
 
 ## 📜 License
 
-[MIT License](https://github.com/r4job/tempest?tab=MIT-1-ov-file#readme)
+[MIT License](https://github.com/r4job/tempest?tab=MIT-1-ov-file)
 
 ---
 
