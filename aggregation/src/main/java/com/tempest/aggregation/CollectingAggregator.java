@@ -5,7 +5,6 @@ import com.tempest.metric.MetricEvent;
 
 import java.util.Map;
 
-public interface MetricAggregator {
-    void addEvent(MetricEvent event);
+public interface CollectingAggregator extends MetricEventConsumer {
     Map<AggregationKey, Integer> collectAndReset(); // Returns current aggregated counts and clears state
 }

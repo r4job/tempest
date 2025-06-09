@@ -1,15 +1,15 @@
 package com.tempest.aggregation.impl;
 
-import com.tempest.aggregation.MetricAggregator;
+import com.tempest.aggregation.CollectingAggregator;
 import com.tempest.aggregation.pojo.AggregationKey;
 import com.tempest.metric.MetricEvent;
 
 import java.util.*;
 
-public class ShardedAggregator implements MetricAggregator {
+public class ShardedAggregator implements CollectingAggregator {
 
     private final int numShards;
-    private final List<MetricAggregator> shardAggregators;
+    private final List<CollectingAggregator> shardAggregators;
 
     public ShardedAggregator(int numShards, AggregatorFactory aggregatorFactory) {
         if (numShards <= 0) {
@@ -35,7 +35,7 @@ public class ShardedAggregator implements MetricAggregator {
     @Override
     public Map<AggregationKey, Integer> collectAndReset() {
         Map<AggregationKey, Integer> merged = new HashMap<>();
-        for (MetricAggregator aggregator : shardAggregators) {
+        for (CollectingAggregator aggregator : shardAggregators) {
             Map<AggregationKey, Integer> partial = aggregator.collectAndReset();
             for (Map.Entry<AggregationKey, Integer> entry : partial.entrySet()) {
                 merged.merge(entry.getKey(), entry.getValue(), Integer::sum);
@@ -46,7 +46,7 @@ public class ShardedAggregator implements MetricAggregator {
 
     @FunctionalInterface
     public interface AggregatorFactory {
-        MetricAggregator create();
+        CollectingAggregator create();
     }
 }
 

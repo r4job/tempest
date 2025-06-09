@@ -1,6 +1,6 @@
 package com.tempest.aggregation.impl;
 
-import com.tempest.aggregation.MetricAggregator;
+import com.tempest.aggregation.CollectingAggregator;
 import com.tempest.aggregation.pojo.AggregationKey;
 import com.tempest.metric.MetricEvent;
 
@@ -12,7 +12,7 @@ public class BufferedAggregator extends AggregatorPlugin {
     private final int bufferSize;
     private final List<MetricEvent> buffer = new ArrayList<>();
 
-    public BufferedAggregator(MetricAggregator delegate, int bufferSize) {
+    public BufferedAggregator(CollectingAggregator delegate, int bufferSize) {
         super(delegate);
         this.bufferSize = bufferSize;
     }

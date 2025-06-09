@@ -1,16 +1,16 @@
 package com.tempest.aggregation.impl;
 
-import com.tempest.aggregation.MetricAggregator;
+import com.tempest.aggregation.CollectingAggregator;
 import com.tempest.aggregation.pojo.AggregationKey;
 import com.tempest.metric.MetricEvent;
 
 import java.util.Map;
 
-public abstract class AggregatorPlugin implements MetricAggregator {
+public abstract class AggregatorPlugin implements CollectingAggregator {
 
-    protected final MetricAggregator delegate;
+    protected final CollectingAggregator delegate;
 
-    public AggregatorPlugin(MetricAggregator delegate) {
+    public AggregatorPlugin(CollectingAggregator delegate) {
         this.delegate = delegate;
     }
 

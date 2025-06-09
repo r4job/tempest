@@ -1,6 +1,6 @@
 package com.tempest.aggregation.impl;
 
-import com.tempest.aggregation.MetricAggregator;
+import com.tempest.aggregation.CollectingAggregator;
 import com.tempest.aggregation.pojo.AggregationBucket;
 import com.tempest.aggregation.pojo.AggregationKey;
 import com.tempest.metric.MetricEvent;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InMemoryAggregator implements MetricAggregator {
+public class InMemoryAggregator implements CollectingAggregator {
 
     private final ConcurrentHashMap<AggregationKey, AtomicInteger> counters = new ConcurrentHashMap<>();
     private final AggregationBucket bucket;
