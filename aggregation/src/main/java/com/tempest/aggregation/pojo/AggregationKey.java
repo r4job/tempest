@@ -1,6 +1,5 @@
 package com.tempest.aggregation.pojo;
 
-import com.tempest.metric.impl.AsyncMetricEmitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,43 +14,78 @@ public class AggregationKey {
 
     private final String objectType;
     private final String itemId;
-    private final String timeBucket;
+    private final String timeBucket;             // for hashing/grouping
+    private final ZonedDateTime timeBucketZdt;   // for eviction/comparison
 
     public AggregationKey(String objectType, String itemId, long timestampMillis, AggregationBucket bucket) {
         this.objectType = objectType;
         this.itemId = itemId;
-        this.timeBucket = computeTimeBucket(timestampMillis, bucket);
-    }
 
-    private String computeTimeBucket(long timestampMillis, AggregationBucket bucket) {
         Instant instant = Instant.ofEpochMilli(timestampMillis);
         ZonedDateTime zdt = instant.atZone(ZoneOffset.UTC);
+        this.timeBucketZdt = alignToBucket(zdt, bucket);
+        this.timeBucket = formatBucketString(timeBucketZdt, bucket);
+    }
 
+    private ZonedDateTime alignToBucket(ZonedDateTime zdt, AggregationBucket bucket) {
         switch (bucket.getUnit()) {
             case MINUTE:
                 int minute = (zdt.getMinute() / bucket.getCount()) * bucket.getCount();
-                ZonedDateTime minuteAligned = zdt.withMinute(minute).withSecond(0).withNano(0);
-                return minuteAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+                return zdt.withMinute(minute).withSecond(0).withNano(0);
             case HOUR:
                 int hour = (zdt.getHour() / bucket.getCount()) * bucket.getCount();
-                ZonedDateTime hourAligned = zdt.withHour(hour).withMinute(0).withSecond(0).withNano(0);
-                return hourAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH"));
+                return zdt.withHour(hour).withMinute(0).withSecond(0).withNano(0);
             case DAY:
                 int day = (zdt.getDayOfMonth() / bucket.getCount()) * bucket.getCount();
-                ZonedDateTime dayAligned = zdt.withDayOfMonth(day == 0 ? 1 : day).withHour(0).withMinute(0).withSecond(0).withNano(0);
-                return dayAligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                return zdt.withDayOfMonth(day == 0 ? 1 : day).withHour(0).withMinute(0).withSecond(0).withNano(0);
             default:
                 logger.error("[AggregationKey] Unsupported time unit: {}", bucket.getUnit());
                 throw new IllegalArgumentException("Unsupported time unit: " + bucket.getUnit());
         }
     }
 
+    private String formatBucketString(ZonedDateTime aligned, AggregationBucket bucket) {
+        switch (bucket.getUnit()) {
+            case MINUTE:
+                return aligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+            case HOUR:
+                return aligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH"));
+            case DAY:
+                return aligned.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            default:
+                logger.error("[AggregationKey] Unsupported time unit: {}", bucket.getUnit());
+                throw new IllegalArgumentException("Unsupported time unit: " + bucket.getUnit());
+        }
+    }
+
+    public String getObjectType() {
+        return objectType;
+    }
+
+    public String getItemId() {
+        return itemId;
+    }
+
+    public String getTimeBucket() {
+        return timeBucket;
+    }
+
+    public ZonedDateTime getTimeBucketZdt() {
+        return timeBucketZdt;
+    }
+
+    public Instant getTimeBucketInstant() {
+        return timeBucketZdt.toInstant();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof AggregationKey)) return false;
         AggregationKey that = (AggregationKey) o;
-        return Objects.equals(objectType, that.objectType) && Objects.equals(itemId, that.itemId) && Objects.equals(timeBucket, that.timeBucket);
+        return Objects.equals(objectType, that.objectType) &&
+                Objects.equals(itemId, that.itemId) &&
+                Objects.equals(timeBucket, that.timeBucket);
     }
 
     @Override
