@@ -1,5 +1,6 @@
 package com.tempest.aggregation.impl;
 
+import com.tempest.aggregation.CollectingAggregator;
 import com.tempest.aggregation.pojo.AggregationKey;
 import com.tempest.metric.MetricEvent;
 
@@ -12,7 +13,7 @@ public class EvictingAggregator extends AggregatorPlugin {
 
     private final long maxAgeMillis;
 
-    public EvictingAggregator(AggregatorPlugin delegate, long maxAgeMillis) {
+    public EvictingAggregator(CollectingAggregator delegate, long maxAgeMillis) {
         super(delegate);
         this.maxAgeMillis = maxAgeMillis;
     }
