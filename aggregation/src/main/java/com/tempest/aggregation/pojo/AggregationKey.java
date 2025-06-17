@@ -36,8 +36,8 @@ public class AggregationKey {
                 int hour = (zdt.getHour() / bucket.getCount()) * bucket.getCount();
                 return zdt.withHour(hour).withMinute(0).withSecond(0).withNano(0);
             case DAY:
-                int day = (zdt.getDayOfMonth() / bucket.getCount()) * bucket.getCount();
-                return zdt.withDayOfMonth(day == 0 ? 1 : day).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                int day = ((zdt.getDayOfMonth() - 1) / bucket.getCount()) * bucket.getCount() + 1;
+                return zdt.withDayOfMonth(day).withHour(0).withMinute(0).withSecond(0).withNano(0);
             default:
                 logger.error("[AggregationKey] Unsupported time unit: {}", bucket.getUnit());
                 throw new IllegalArgumentException("Unsupported time unit: " + bucket.getUnit());
