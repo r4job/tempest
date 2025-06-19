@@ -19,11 +19,11 @@ public class EvictingAggregator extends AggregatorPlugin {
     }
 
     @Override
-    public Map<AggregationKey, Integer> collectAndReset() {
-        Map<AggregationKey, Integer> all = super.collectAndReset();
+    public Map<AggregationKey, Double> collectAndReset() {
+        Map<AggregationKey, Double> all = super.collectAndReset();
         long cutoff = Instant.now().toEpochMilli() - maxAgeMillis;
 
-        Iterator<Map.Entry<AggregationKey, Integer>> it = all.entrySet().iterator();
+        Iterator<Map.Entry<AggregationKey, Double>> it = all.entrySet().iterator();
         while (it.hasNext()) {
             AggregationKey key = it.next().getKey();
             if (key.getTimeBucketInstant().toEpochMilli() < cutoff) {

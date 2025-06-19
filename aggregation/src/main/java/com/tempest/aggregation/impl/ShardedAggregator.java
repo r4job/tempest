@@ -33,7 +33,7 @@ public class ShardedAggregator implements CollectingAggregator {
     }
 
     @Override
-    public Map<AggregationKey, Integer> collectAndReset() {
+    public Map<AggregationKey, Double> collectAndReset() {
         Map<AggregationKey, Integer> merged = new HashMap<>();
         for (CollectingAggregator aggregator : shardAggregators) {
             Map<AggregationKey, Integer> partial = aggregator.collectAndReset();

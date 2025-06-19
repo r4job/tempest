@@ -33,7 +33,7 @@ public class BufferedAggregator extends AggregatorPlugin {
     }
 
     @Override
-    public synchronized Map<AggregationKey, Integer> collectAndReset() {
+    public synchronized Map<AggregationKey, Double> collectAndReset() {
         flush();
         return super.collectAndReset();
     }

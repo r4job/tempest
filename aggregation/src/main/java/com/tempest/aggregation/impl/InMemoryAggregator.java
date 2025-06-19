@@ -26,10 +26,10 @@ public class InMemoryAggregator implements CollectingAggregator {
     }
 
     @Override
-    public Map<AggregationKey, Integer> collectAndReset() {
-        Map<AggregationKey, Integer> snapshot = new HashMap<>();
+    public Map<AggregationKey, Double> collectAndReset() {
+        Map<AggregationKey, Double> snapshot = new HashMap<>();
         for (Map.Entry<AggregationKey, AtomicInteger> entry : counters.entrySet()) {
-            snapshot.put(entry.getKey(), entry.getValue().get());
+            snapshot.put(entry.getKey(), entry.getValue().get() * 1.0);
         }
         counters.clear();
         return snapshot;

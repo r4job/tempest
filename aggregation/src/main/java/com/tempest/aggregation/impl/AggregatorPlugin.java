@@ -20,7 +20,7 @@ public abstract class AggregatorPlugin implements CollectingAggregator {
     }
 
     @Override
-    public Map<AggregationKey, Integer> collectAndReset() {
+    public Map<AggregationKey, Double> collectAndReset() {
         return delegate.collectAndReset();
     }
 }
