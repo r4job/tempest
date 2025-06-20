@@ -1,21 +1,42 @@
 package com.tempest.aggregation.impl;
 
-import com.tempest.aggregation.MetricEventConsumer;
+import com.tempest.aggregation.CollectingAggregator;
+import com.tempest.aggregation.ForwardingTarget;
+import com.tempest.aggregation.pojo.AggregationKey;
+import com.tempest.aggregation.strategy.RoutingStrategy;
 import com.tempest.metric.MetricEvent;
 
-public class ForwardingAggregator implements MetricEventConsumer {
-    private final EventForwarder forwarder;
+import java.util.Collections;
+import java.util.Map;
 
-    public ForwardingAggregator(EventForwarder forwarder) {
-        this.forwarder = forwarder;
+public class ForwardingAggregator implements CollectingAggregator {
+
+    private final RoutingStrategy routingStrategy;
+    private final ForwardingTarget forwardingTarget;
+    private final CollectingAggregator localFallback;
+
+    public ForwardingAggregator(RoutingStrategy routingStrategy,
+                                ForwardingTarget forwardingTarget,
+                                CollectingAggregator localFallback) {
+        this.routingStrategy = routingStrategy;
+        this.forwardingTarget = forwardingTarget;
+        this.localFallback = localFallback;
     }
 
     @Override
     public void addEvent(MetricEvent event) {
-        forwarder.send(event);
+        String target = routingStrategy.route(event);
+        if (target == null && localFallback != null) {
+            localFallback.addEvent(event);
+        } else {
+            forwardingTarget.forward(event, target);
+        }
     }
 
-    public interface EventForwarder {
-        void send(MetricEvent event);
+    @Override
+    public Map<AggregationKey, Double> collectAndReset() {
+        return localFallback != null
+                ? localFallback.collectAndReset()
+                : Collections.emptyMap();
     }
 }
