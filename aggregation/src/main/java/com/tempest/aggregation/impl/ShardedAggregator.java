@@ -34,11 +34,11 @@ public class ShardedAggregator implements CollectingAggregator {
 
     @Override
     public Map<AggregationKey, Double> collectAndReset() {
-        Map<AggregationKey, Integer> merged = new HashMap<>();
+        Map<AggregationKey, Double> merged = new HashMap<>();
         for (CollectingAggregator aggregator : shardAggregators) {
-            Map<AggregationKey, Integer> partial = aggregator.collectAndReset();
-            for (Map.Entry<AggregationKey, Integer> entry : partial.entrySet()) {
-                merged.merge(entry.getKey(), entry.getValue(), Integer::sum);
+            Map<AggregationKey, Double> partial = aggregator.collectAndReset();
+            for (Map.Entry<AggregationKey, Double> entry : partial.entrySet()) {
+                merged.merge(entry.getKey(), entry.getValue(), Double::sum);
             }
         }
         return merged;
