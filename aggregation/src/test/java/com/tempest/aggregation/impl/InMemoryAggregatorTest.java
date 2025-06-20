@@ -21,11 +21,11 @@ public class InMemoryAggregatorTest {
         aggregator.addEvent(new TestMetricEvent("video", "item1", now, 1));
         aggregator.addEvent(new TestMetricEvent("video", "item2", now, 1));
 
-        Map<AggregationKey, Integer> result = aggregator.collectAndReset();
+        Map<AggregationKey, Double> result = aggregator.collectAndReset();
         assertEquals(2, result.size());
 
-        int total = result.values().stream().mapToInt(i -> i).sum();
-        assertEquals(3, total);
+        double total = result.values().stream().mapToDouble(i -> i).sum();
+        assertEquals(3.0, total);
     }
 
     @Test

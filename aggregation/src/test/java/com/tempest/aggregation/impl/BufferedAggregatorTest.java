@@ -23,8 +23,8 @@ public class BufferedAggregatorTest {
         assertTrue(base.collectAndReset().isEmpty());
 
         buffered.addEvent(new TestMetricEvent("video", "item1", now, 1)); // triggers flush
-        Map<AggregationKey, Integer> result = base.collectAndReset();
+        Map<AggregationKey, Double> result = base.collectAndReset();
         assertEquals(1, result.size());
-        assertEquals(3, result.values().stream().mapToInt(i -> i).sum());
+        assertEquals(3.0, result.values().stream().mapToDouble(i -> i).sum());
     }
 }

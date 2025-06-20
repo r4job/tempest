@@ -22,7 +22,7 @@ public class EvictingAggregatorTest {
         inner.addEvent(new TestMetricEvent("video", "recent", now, 1));
 
         EvictingAggregator evicting = new EvictingAggregator(inner, 5 * 60 * 1000);
-        Map<AggregationKey, Integer> result = evicting.collectAndReset();
+        Map<AggregationKey, Double> result = evicting.collectAndReset();
 
         assertEquals(1, result.size());
         assertTrue(result.keySet().stream().allMatch(k -> k.getItemId().equals("recent")));

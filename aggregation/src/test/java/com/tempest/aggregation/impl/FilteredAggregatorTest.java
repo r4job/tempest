@@ -20,7 +20,7 @@ public class FilteredAggregatorTest {
         filtered.addEvent(new TestMetricEvent("video", "abc", now, 1));
         filtered.addEvent(new TestMetricEvent("video", "zzz", now, 1));
 
-        Map<AggregationKey, Integer> result = filtered.collectAndReset();
+        Map<AggregationKey, Double> result = filtered.collectAndReset();
         assertEquals(1, result.size());
         assertEquals("abc", result.keySet().iterator().next().getItemId());
     }

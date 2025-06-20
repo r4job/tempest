@@ -20,8 +20,8 @@ public class ShardedAggregatorTest {
         sharded.addEvent(new TestMetricEvent("video", "item1", now, 1));
         sharded.addEvent(new TestMetricEvent("video", "item2", now, 1));
 
-        Map<AggregationKey, Integer> result = sharded.collectAndReset();
+        Map<AggregationKey, Double> result = sharded.collectAndReset();
         assertEquals(2, result.size());
-        assertEquals(3, result.values().stream().mapToInt(i -> i).sum());
+        assertEquals(3.0, result.values().stream().mapToDouble(i -> i).sum());
     }
 }
