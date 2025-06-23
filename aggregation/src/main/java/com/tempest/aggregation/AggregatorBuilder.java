@@ -1,7 +1,7 @@
 package com.tempest.aggregation;
 
 import com.tempest.aggregation.impl.*;
-import com.tempest.aggregation.pojo.AggregationBucket;
+import com.tempest.aggregation.model.AggregationBucket;
 import com.tempest.aggregation.strategy.AggregationStrategyFactory;
 
 public class AggregatorBuilder {

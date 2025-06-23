@@ -2,7 +2,7 @@ package com.tempest.aggregation.impl;
 
 import com.tempest.aggregation.CollectingAggregator;
 import com.tempest.aggregation.ForwardingTarget;
-import com.tempest.aggregation.pojo.AggregationKey;
+import com.tempest.aggregation.model.AggregationKey;
 import com.tempest.aggregation.strategy.RoutingStrategy;
 import com.tempest.metric.MetricEvent;
 

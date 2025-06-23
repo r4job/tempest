@@ -1,8 +1,8 @@
 package com.tempest.aggregation.impl;
 
 import com.tempest.aggregation.CollectingAggregator;
-import com.tempest.aggregation.pojo.AggregationBucket;
-import com.tempest.aggregation.pojo.AggregationKey;
+import com.tempest.aggregation.model.AggregationBucket;
+import com.tempest.aggregation.model.AggregationKey;
 import com.tempest.aggregation.strategy.AggregationStrategy;
 import com.tempest.aggregation.strategy.AggregationStrategyFactory;
 import com.tempest.metric.MetricEvent;

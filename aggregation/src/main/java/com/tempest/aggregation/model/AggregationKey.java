@@ -1,4 +1,4 @@
-package com.tempest.aggregation.pojo;
+package com.tempest.aggregation.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

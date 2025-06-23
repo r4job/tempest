@@ -1,4 +1,4 @@
-package com.tempest.aggregation.pojo;
+package com.tempest.aggregation.model;
 
 import org.junit.jupiter.api.Test;
 
