@@ -50,4 +50,38 @@ public class ConsistentHashRoutingStrategyTest {
 
         assertEquals("node-Z", target, "With one node, all keys should route to it");
     }
+
+    @Test
+    public void testUpdateNodesReflectsInRouting() {
+        List<String> initialNodes = Arrays.asList("node-1", "node-2");
+        ConsistentHashRoutingStrategy strategy = new ConsistentHashRoutingStrategy(initialNodes);
+
+        MetricEvent event = new TestMetricEvent("video", "item456", System.currentTimeMillis(), 1);
+        String initialTarget = strategy.route(event);
+
+        strategy.addNode("node-3");
+        String afterAddition = strategy.route(event);
+
+        strategy.removeNode("node-1");
+        String afterRemoval = strategy.route(event);
+
+        assertTrue(Arrays.asList("node-1", "node-2", "node-3").contains(initialTarget));
+        assertTrue(Arrays.asList("node-1", "node-2", "node-3").contains(afterAddition));
+        assertTrue(Arrays.asList("node-2", "node-3").contains(afterRemoval));
+    }
+
+    @Test
+    public void testSetNodesResetsRing() {
+        List<String> initialNodes = Arrays.asList("old-1", "old-2");
+        ConsistentHashRoutingStrategy strategy = new ConsistentHashRoutingStrategy(initialNodes);
+
+        MetricEvent event = new TestMetricEvent("audio", "item789", System.currentTimeMillis(), 1);
+        String beforeReset = strategy.route(event);
+
+        strategy.updateNodes(Arrays.asList("new-1", "new-2"));
+        String afterReset = strategy.route(event);
+
+        assertTrue(beforeReset.startsWith("old-"));
+        assertTrue(afterReset.startsWith("new-"));
+    }
 }
