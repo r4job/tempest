@@ -11,7 +11,6 @@ public class ConsistentHashRing {
 
     private final int replicas;
     private final TreeMap<Long, String> ring = new TreeMap<>();
-    private final Set<String> nodes = new HashSet<>();
 
     public ConsistentHashRing(Collection<String> initialNodes) {
         this(initialNodes, DEFAULT_REPLICAS);
@@ -24,14 +23,12 @@ public class ConsistentHashRing {
 
     public synchronized void setNodes(Collection<String> newNodes) {
         ring.clear();
-        nodes.clear();
         for (String node : newNodes) {
             addNode(node);
         }
     }
 
     public synchronized void addNode(String node) {
-        nodes.add(node);
         for (int i = 0; i < replicas; i++) {
             String virtualNode = node + CONJ + i;
             ring.put(hash(virtualNode), node);
@@ -39,7 +36,6 @@ public class ConsistentHashRing {
     }
 
     public synchronized void removeNode(String node) {
-        nodes.remove(node);
         for (int i = 0; i < replicas; i++) {
             String virtualNode = node + CONJ + i;
             ring.remove(hash(virtualNode));
