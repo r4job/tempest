@@ -15,7 +15,7 @@ The system consists of:
 - ⏱️ **Prediction Engine**: Uses time-series forecasting and online learning to predict future hot keys
 - 🔥 **Cache Warmer**: Loads predicted items into cache using appropriate eviction and TTL policies
 
-> The emission layer is complete. Aggregation and prediction layers are under development.
+> The emission and aggregation layers are complete. Prediction layer and cache warmer are under development.
 
 ---
 
@@ -49,7 +49,7 @@ Tempest addresses these via a modular, extensible pipeline:
 1. **Metric Emission** (done)
     - Collects user interaction data (item, timestamp, count)
     - Durable, async, and retry-capable
-2. **Metric Aggregation** (WIP)
+2. **Metric Aggregation** (done)
     - Aggregates metrics into per-item time series
     - Resamples and cleans data for modeling
 3. **Prediction Engine** (WIP)
@@ -92,11 +92,11 @@ emitter.emit(event);
 ## 🧪 Testing
 
 ```bash
-./gradlew test
+mvn test
 ```
 
-- Unit tests are available for all emitters and core modules
-- Integration tests coming soon for aggregation and warming pipelines
+- Unit tests are available for all emitters and aggregators, some of which require runtime environment (Kafka, RabbitMQ, etc)
+- Integration tests are coming soon for aggregation and warming pipelines
 
 ---
 
@@ -107,18 +107,23 @@ com.tempest
 ├── metric               # Emission interface & builder
 │   ├── impl             # Concrete emitters (Kafka, HTTP, etc.)
 │   └── durability       # File-based durability store
-├── aggregation          # (WIP) Time window resampling
+├── aggregation          # Time window resampling
+│   ├── impl             # Concrete aggregators (buffered, filtered, etc.)
+│   ├── model            # Aggregation data models
+│   ├── strategy         # Forwarding and aggregation strategies
+│   └── watcher          # Node monitoring for dynamic routing updates
 ├── predictor            # (WIP) Forecasting and scoring
 ├── warmer               # (WIP) Cache preheater interface
 ├── config               # YAML/JSON config objects
 ├── grpc                 # Grpc connector
+├── common               # Module-Shared tools
 ```
 
 ---
 
 ## 📜 License
 
-[MIT License](https://github.com/r4job/tempest?tab=MIT-1-ov-file)
+[MIT License](https://github.com/r4job/tempest?tab=MIT-1-ov-file#readme)
 
 ---
 
