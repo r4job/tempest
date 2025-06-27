@@ -1,5 +1,6 @@
 package com.tempest.metric.impl;
 
+import com.tempest.common.ThreadPoolBuilder;
 import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
@@ -26,8 +27,8 @@ public class DurableMetricEmitter implements MetricEmitter {
     public DurableMetricEmitter(MetricEmitter delegate, MetricDurabilityStore store) {
         this.delegate = delegate;
         this.store = store;
-        this.retryExecutor = Executors.newFixedThreadPool(recoveryThreadCount);
-        this.recoveryScheduler = Executors.newSingleThreadScheduledExecutor();
+        this.retryExecutor = ThreadPoolBuilder.newBuilder().withCoreThreads(recoveryThreadCount).build();
+        this.recoveryScheduler = ThreadPoolBuilder.newBuilder().buildScheduled();
 
         startRecoveryScheduler();
     }

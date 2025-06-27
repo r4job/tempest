@@ -1,5 +1,6 @@
 package com.tempest.metric.durability;
 
+import com.tempest.common.ThreadPoolBuilder;
 import com.tempest.metric.MetricEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-
 
 public class MetricFileWriter implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(MetricFileWriter.class);
@@ -40,7 +40,7 @@ public class MetricFileWriter implements Closeable {
         this.segmentIndex = findLastSegmentIndex() + 1;
         openSegment(segmentIndex);
 
-        this.flusher = Executors.newSingleThreadScheduledExecutor();
+        this.flusher = ThreadPoolBuilder.newBuilder().buildScheduled();
         this.flusher.scheduleAtFixedRate(this::flushIfNeeded, flushIntervalMs, flushIntervalMs, TimeUnit.MILLISECONDS);
     }
 

@@ -1,6 +1,7 @@
 package com.tempest.aggregation.watcher;
 
 import com.tempest.aggregation.model.ConsistentHashRing;
+import com.tempest.common.ThreadPoolBuilder;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.CuratorCache;
 import org.apache.curator.framework.recipes.cache.CuratorCacheListener;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ZooKeeperHashRingWatcher extends AbstractHashRingWatcher {
     private static final Logger logger = LoggerFactory.getLogger(ZooKeeperHashRingWatcher.class);
@@ -17,7 +17,7 @@ public class ZooKeeperHashRingWatcher extends AbstractHashRingWatcher {
     private final CuratorFramework client;
     private final String path;
     private CuratorCache cache;
-    private final ExecutorService listenerExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService listenerExecutor = ThreadPoolBuilder.newBuilder().build();
 
     public ZooKeeperHashRingWatcher(CuratorFramework client, String path, ConsistentHashRing ring, int maxRetries) {
         super(ring, maxRetries);

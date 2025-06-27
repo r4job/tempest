@@ -1,12 +1,12 @@
 package com.tempest.aggregation.watcher;
 
 import com.tempest.aggregation.model.ConsistentHashRing;
+import com.tempest.common.ThreadPoolBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +15,7 @@ public abstract class AbstractHashRingWatcher implements HashRingWatcher {
 
     protected final ConsistentHashRing ring;
     protected final Set<String> currentNodes = ConcurrentHashMap.newKeySet();
-    protected final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor();
+    protected final ScheduledExecutorService retryExecutor = ThreadPoolBuilder.newBuilder().buildScheduled();
 
     protected int retryCount = 0;
     protected final int maxRetries;

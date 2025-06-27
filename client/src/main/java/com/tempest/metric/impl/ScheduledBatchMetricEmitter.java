@@ -1,5 +1,6 @@
 package com.tempest.metric.impl;
 
+import com.tempest.common.ThreadPoolBuilder;
 import com.tempest.metric.EmitResult;
 import com.tempest.metric.MetricEmitter;
 import com.tempest.metric.MetricEvent;
@@ -7,7 +8,6 @@ import com.tempest.metric.MetricEvent;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +18,7 @@ public class ScheduledBatchMetricEmitter extends BatchMetricEmitter {
 
     public ScheduledBatchMetricEmitter(MetricEmitter delegate, int capacity, Duration interval) {
         super(delegate, capacity);
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService scheduler = ThreadPoolBuilder.newBuilder().buildScheduled();
         scheduler.scheduleAtFixedRate(() -> {
             List<MetricEvent> batch = drainAll();
             flushBuffer(batch);

@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 public final class ThreadPoolBuilder {
     private String name = "tempest-";
     private int corePoolSize = 1;
-    private int maxPoolSize = 1;
+    private int maxPoolSize = corePoolSize;
     private long keepAliveMillis = 0;
     private int queueCapacity = 1000;
     private boolean isDaemon = true;
