@@ -3,6 +3,8 @@ package com.tempest.common;
 import com.sun.org.slf4j.internal.Logger;
 import com.sun.org.slf4j.internal.LoggerFactory;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,21 +75,95 @@ public final class ThreadPoolBuilder {
 
     public ExecutorService build() {
         int requested = this.maxPoolSize;
-        int current = totalThreads.addAndGet(requested);
 
-        if (current > THREAD_LIMIT) {
-            logger.warn("[TempestThreadPool] Thread creation exceeds safe limit: {} > {}. "
-                    + "Reusing general pool.", current, THREAD_LIMIT);
+        if (!ThreadBudgetManager.tryReserve(requested)) {
+            logger.warn("Thread budget exceeded. Falling back to shared pool.");
             return general();
         }
 
         BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(queueCapacity);
         ThreadFactory factory = new NamedThreadFactory(name, isDaemon);
-        return new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveMillis, TimeUnit.MILLISECONDS, queue, factory, rejectedHandler);
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveMillis, TimeUnit.MILLISECONDS, queue, factory, rejectedHandler);
+        return wrapWithRelease(executor, requested);
     }
 
     public ScheduledExecutorService buildScheduled() {
         return Executors.newScheduledThreadPool(corePoolSize, new NamedThreadFactory(name, isDaemon));
+    }
+
+    private ExecutorService wrapWithRelease(ExecutorService delegate, int reserved) {
+        return new ExecutorService() {
+            @Override
+            public void shutdown() {
+                delegate.shutdown();
+                ThreadBudgetManager.release(reserved);
+            }
+
+            @Override
+            public List<Runnable> shutdownNow() {
+                List<Runnable> tasks = delegate.shutdownNow();
+                ThreadBudgetManager.release(reserved);
+                return tasks;
+            }
+
+            // Delegate all other methods
+            @Override
+            public boolean isShutdown() {
+                return delegate.isShutdown();
+            }
+
+            @Override
+            public boolean isTerminated() {
+                return delegate.isTerminated();
+            }
+
+            @Override
+            public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+                return delegate.awaitTermination(timeout, unit);
+            }
+
+            @Override
+            public <T> Future<T> submit(Callable<T> task) {
+                return delegate.submit(task);
+            }
+
+            @Override
+            public <T> Future<T> submit(Runnable task, T result) {
+                return delegate.submit(task, result);
+            }
+
+            @Override
+            public Future<?> submit(Runnable task) {
+                return delegate.submit(task);
+            }
+
+            @Override
+            public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+                return delegate.invokeAll(tasks);
+            }
+
+            @Override
+            public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+                    throws InterruptedException {
+                return delegate.invokeAll(tasks, timeout, unit);
+            }
+
+            @Override
+            public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+                return delegate.invokeAny(tasks);
+            }
+
+            @Override
+            public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+                    throws InterruptedException, ExecutionException, TimeoutException {
+                return delegate.invokeAny(tasks, timeout, unit);
+            }
+
+            @Override
+            public void execute(Runnable command) {
+                delegate.execute(command);
+            }
+        };
     }
 }
 
