@@ -3,6 +3,7 @@ package com.tempest.aggregation.impl;
 import com.tempest.aggregation.TestMetricEvent;
 import com.tempest.aggregation.model.AggregationBucket;
 import com.tempest.aggregation.model.AggregationKey;
+import com.tempest.aggregation.strategy.AggregationStrategy;
 import com.tempest.aggregation.strategy.AggregationStrategyFactory;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ValueAggregatorTest {
 
-    private static class SumStrategy implements com.tempest.aggregation.strategy.AggregationStrategy {
+    private static class SumStrategy implements AggregationStrategy {
         private double sum = 0;
 
         @Override
