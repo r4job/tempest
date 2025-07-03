@@ -91,8 +91,8 @@ public final class ThreadPoolBuilder {
         int requested = this.corePoolSize;
 
         if (!ThreadBudgetManager.tryReserve(requested)) {
-            logger.warn("Thread budget exceeded. Falling back to shared pool.");
-            return (ScheduledExecutorService) general(); // FIXME: cast is safe only if GENERAL_POOL is a ScheduledExecutorService
+            logger.warn("Thread budget exceeded. Falling back to a shared scheduled pool.");
+            return SharedScheduledPool.get();
         }
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(corePoolSize, new NamedThreadFactory(name, isDaemon));
